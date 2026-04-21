@@ -1,0 +1,33 @@
+# application.yml
+aliyun:
+  oss:
+    endpoint: ${ALIYUN_NATION}}
+    access-key-id: ${ALIYUN_ACCESS_KEY_ID}
+    access-key-secret: ${ALIYUN_ACCESS_KEY_SECRET}
+    bucket-name: firstbloglk
+    url-prefix: ${ALIYUN_URL}
+
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  config:
+    import: optional:file:.env[.properties]  # 这行是核心，告诉 Spring 去读 .env
+
+
+  ai:
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY}  # API 密钥
+      base-url: https://api.deepseek.com  # API 地址（默认就是这个）
+      model: deepseek-chat  # 模型名称
+
+# 线程池配置
+thread:
+  pool:
+    core-pool-size: 5
+    max-pool-size: 10
+    queue-capacity: 50
+    keep-alive-seconds: 60

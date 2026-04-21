@@ -1,0 +1,49 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# 敏感配置文件
+application-prod.yml
+application-prod.properties
+application-local.yml
+application-local.properties
+
+# 所有以 -prod、-local 结尾的配置
+**/application-*.yml
+!**/application-dev.yml
+!**/application-example.yml
+
+# 环境变量文件
+.env
+.env.local
+.env.prod

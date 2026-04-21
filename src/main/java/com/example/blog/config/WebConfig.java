@@ -1,0 +1,30 @@
+package com.example.blog.config;
+
+import com.example.blog.interceptor.JwtInterceptor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Slf4j
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private JwtInterceptor jwtInterceptor;
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        log.info("注册JWT拦截器，排除路径: /admin/login, /admin/register");
+        registry.addInterceptor(jwtInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/admin/login",
+                        "/admin/register"
+                );
+
+
+    }
+
+
+}

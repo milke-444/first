@@ -1,4 +1,4 @@
-package com.example.blog.contest;
+package com.example.blog.context;
 
 public class BaseContext {
 

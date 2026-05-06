@@ -3,11 +3,10 @@ package com.example.blog.mapper;
 import com.example.blog.dto.BlogCreateDto;
 import com.example.blog.dto.ListDto;
 import com.example.blog.entity.Blog;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BlogMapper {
@@ -41,9 +40,12 @@ public interface BlogMapper {
     Long selectLikeCount(Integer blogid);
 
 
-    @Select("select blog_name from blog where blog_id in (#{blogIds})")
-    Blog selectblogname(Integer blogIds);
+
 
     @Update("update blog set like_count = 0 ")
     void updateLikeCountNull();
+
+    // BlogMapper.java
+    @MapKey("id")   // 指定 Map 的 key 为 blog 的 id 字段
+    Map<Integer, Blog> selectBlogMapByIds(@Param("ids") List<Integer> ids);
 }

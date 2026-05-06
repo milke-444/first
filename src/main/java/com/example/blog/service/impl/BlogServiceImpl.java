@@ -1,7 +1,6 @@
 package com.example.blog.service.impl;
 
-import com.example.blog.config.RedisScriptConfig;
-import com.example.blog.contest.BaseContext;
+import com.example.blog.context.BaseContext;
 import com.example.blog.dto.BlogCreateDto;
 import com.example.blog.dto.ListDto;
 import com.example.blog.dto.updateBlogDto;
@@ -25,8 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -235,45 +232,54 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public Result ranking() {
         // 获取前5名博客（带点赞数）
-        Set<ZSetOperations.TypedTuple<String>> ranking = stringRedisTemplate.opsForZSet()
+        Set<ZSetOperations.TypedTuple<String>> ranking = stringRedisTemplate.opsForZSet()//获取zset中的前五用户信息
                 .reverseRangeWithScores("zsetlikevalue", 0, 4);
 
+        //判断排行榜中是否有数据
         if (ranking == null || ranking.isEmpty()) {
             return Result.success("暂无排行榜数据");
         }
 
-        // 提取博客ID列表（去掉前缀）
+        // 存储博客ID列表（去掉前缀）
         List<Integer> blogIds = new ArrayList<>();
         Map<String, Double> scoreMap = new HashMap<>();
 
+        // 遍历ZSet中的元素，提取博客ID和点赞数
         for (ZSetOperations.TypedTuple<String> tuple : ranking) {
             String value = tuple.getValue();  // "zsetlike9"
             Double likes = tuple.getScore();
 
             // 去掉前缀，提取纯ID
-            String blogIdStr = value.replace("zsetlike", "");
+            String blogIdStr = value.replace("zsetlike", "");//去除key值的前缀，直接获取博客id
             Integer blogId = Integer.parseInt(blogIdStr);
 
-            blogIds.add(blogId);
-            scoreMap.put(blogIdStr, likes);
+            blogIds.add(blogId);//存储博客ID
+            scoreMap.put(blogIdStr, likes);//存储点赞数，用于排行
         }
 
 
         // 构建返回结果
-        List<Map<String, Object>> rankingList = new ArrayList<>();
+        List<Map<String, Object>> rankingList = new ArrayList<>();//创建一个结果列表，存储每个博客的详细信息，json化
         int rank = 1;
 
+        //使用批量查询，修复n+1的必要
+        Map<Integer, Blog> blogMap = blogMapper.selectBlogMapByIds(blogIds);//获取博客名称,这里使用基础的数据库查询，出现一个博客查询一次的问题，直接提取全部要查询的id使用多查询，可避免多次使用数据库
+        //遍历排行榜，构建返回结果
         for (ZSetOperations.TypedTuple<String> tuple : ranking) {
             String value = tuple.getValue();
             Double likes = tuple.getScore();
 
             // 提取ID
+//            String blogIdStr = value.replace("zsetlike", "");上面已经有了，重复了
+//            Integer blogId = Integer.parseInt(blogIdStr);
+//
+//           List<Blog> blogs = blogMapper.selectblogname(blogIds);//获取博客名称,这里使用基础的数据库查询，出现一个博客查询一次的问题，直接提取全部要查询的id使用多查询，可避免多次使用数据库
             String blogIdStr = value.replace("zsetlike", "");
-            Integer blogId = Integer.parseInt(blogIdStr);
-            Blog blog = blogMapper.selectblogname(blogId);
-            Map<String, Object> item = new HashMap<>();
+            Integer blogId = Integer.parseInt(blogIdStr);//再次获取id用于进行结果的key值
+            Map<String, Object> item = new HashMap<>();//创建一个结果项，统一结果输出
             item.put("rank", rank++);;
-            item.put("blogTitle", blog.getBlogName());  // 博客名称
+            Blog blog = blogMap.get(blogId);//获取博客名称
+            item.put("blogTitle", blog != null ? blog.getBlogName() : "已删除");
             item.put("totalLikes", likes != null ? likes.longValue() : 0);
 
             rankingList.add(item);

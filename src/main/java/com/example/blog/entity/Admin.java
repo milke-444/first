@@ -34,6 +34,9 @@ public class Admin {
 
     @Email(message = "邮箱格式不正确")
     private String email;//邮箱
+
+    @NotBlank(message = "角色不能为空")
+    private String role;
 //    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 //    private Date registerTime;//注册时间
 

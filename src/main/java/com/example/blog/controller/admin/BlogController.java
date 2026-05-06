@@ -1,6 +1,6 @@
 package com.example.blog.controller.admin;
 
-import com.example.blog.contest.BaseContext;
+import com.example.blog.context.BaseContext;
 import com.example.blog.dto.BlogCreateDto;
 import com.example.blog.dto.ListDto;
 import com.example.blog.dto.updateBlogDto;
@@ -9,7 +9,6 @@ import com.example.blog.entity.PageResult;
 import com.example.blog.result.Result;
 import com.example.blog.service.BlogService;
 import jakarta.validation.Valid;
-import org.apache.ibatis.annotations.Delete;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

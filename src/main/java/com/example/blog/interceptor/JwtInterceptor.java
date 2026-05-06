@@ -1,8 +1,8 @@
 package com.example.blog.interceptor;
 
-import com.example.blog.contest.BaseContext;
+import com.example.blog.context.BaseContext;
 import com.example.blog.result.Result;
-import com.example.blog.until.JwtUtil;
+import com.example.blog.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

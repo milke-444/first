@@ -1,12 +1,11 @@
 package com.example.blog.service.impl;
 
-import com.example.blog.contest.BaseContext;
+import com.example.blog.context.BaseContext;
 import com.example.blog.dto.*;
 import com.example.blog.entity.*;
 import com.example.blog.mapper.AdminMapper;
 import com.example.blog.mapper.BlogCommentMapper;
 import com.example.blog.mapper.BlogMapper;
-import com.example.blog.result.Result;
 import com.example.blog.service.BlogCommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +29,15 @@ public class BlogCommentServicImpl implements BlogCommentService {
         //TODO:后续使用vo接收 数据返回给前端，避免数据返回给前端时，字段过多，和返回隐私数据
         // list查询的mapper可能写错了，只查询顶级评论
         log.info("开始查询第{}条数据");
-        listCommenDto.setBlogId(blogId);
-        List<CommentTreeDto> list  = blogCommentMapper.list(listCommenDto);
+        listCommenDto.setBlogId(blogId);//设置查询的博客id,使用分页的形式查询
+        List<CommentTreeDto> list  = blogCommentMapper.list(listCommenDto);//将查询所有的顶级评论
+        //遍历全部的评论，获取其中评论的子评论
         for (CommentTreeDto commentTreeDto : list) {
+            //获取所有顶层评论的id，传给获取子评论的方法，获取子评论
             commentTreeDto.setChildren(getChildren(commentTreeDto.getCommentId()));
         }
 
+        //创建分页结果，分页显示评论数据
         PageResult<CommentTreeDto> pageResult = new PageResult<>(list,blogCommentMapper.count(),listCommenDto.getPage(),listCommenDto.getPageSize());
         return pageResult;
 
@@ -45,7 +47,8 @@ public class BlogCommentServicImpl implements BlogCommentService {
     }
 
     private List<CommentTreeDto> getChildren(Long parentId){
-        List<CommentTreeDto> children = blogCommentMapper.getChildren(parentId);
+        //查询所有的
+        List<CommentTreeDto> children = blogCommentMapper.getChildren(parentId);//查询所有的子评论
         for (CommentTreeDto commentTreeDto : children) {
             commentTreeDto.setChildren(getChildren(commentTreeDto.getCommentId()));
         }

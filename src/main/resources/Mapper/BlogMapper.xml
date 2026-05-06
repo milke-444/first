@@ -31,6 +31,15 @@
             WHERE blog_id = #{blogId}
     </update>
 
+    <select id="selectBlogMapByIds" resultType="com.example.blog.entity.Blog">
+            select blog_name from blog where id in (
+            <foreach item="item" collection="blogIds" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            )
+
+    </select>
+
 
 
 

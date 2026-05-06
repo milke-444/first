@@ -1,25 +1,21 @@
 package com.example.blog.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.alibaba.fastjson.JSON;
-import com.example.blog.contest.BaseContext;
-import com.example.blog.controller.admin.AdminController;
+import com.example.blog.context.BaseContext;
 import com.example.blog.dto.LoginDto;
 import com.example.blog.entity.Admin;
 import com.example.blog.mapper.AdminMapper;
-import com.example.blog.result.Result;
 import com.example.blog.service.AdminService;
-import com.example.blog.until.JwtUtil;
-import com.example.blog.until.RedisUtil;
+import com.example.blog.util.JwtUtil;
+import com.example.blog.util.RedisUtil;
 import com.example.blog.vo.LoginVo;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -52,6 +48,9 @@ public class AdminServiceImpl implements AdminService {
         Map<String,Object> claims = new HashMap<>();
         claims.put("adminId",loginadmin.getAdminId());
         claims.put("adminAccount",loginadmin.getAdminAccount());
+
+        String role = loginadmin.getRole();
+        StpUtil.login(loginadmin.getAdminId(),role);
         String jwt = JwtUtil.generateJwt(claims);
         //创建redis用于进行jwt的存储
         ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();//创建redis操作对象

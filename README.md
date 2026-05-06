@@ -26,3 +26,25 @@
 **验证结果**：
 - 单用户 100 线程串行/并发测试通过。
 - 数据一致性问题得到根治。
+## 排行榜 N+1 查询优化
+
+### 问题
+
+排行榜接口从 Redis ZSet 获取前 5 篇博客 ID 后，循环调用 `blogMapper.selectBlogName(blogId)` 逐条查询博客名称，导致 **5 条数据需要 5 次数据库查询**（N+1 问题）。
+
+### 优化方案
+
+将循环内单条查询改为 **一次批量查询**，并使用 `@MapKey` 直接返回 `Map` 结构，省去手动转换步骤。
+
+### 代码变更
+
+**Mapper 接口**：
+```java
+// 优化前：循环中逐条查
+for (Tuple tuple : ranking) {
+    Blog blog = blogMapper.selectBlogName(blogId); // N 次查询
+}
+
+// 优化后：一次批量查，返回 Map
+@MapKey("id")
+Map<Integer, Blog> selectBlogMapByIds(@Param("ids") List<Integer> ids);

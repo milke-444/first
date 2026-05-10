@@ -48,7 +48,7 @@ for (Tuple tuple : ranking) {
 // 优化后：一次批量查，返回 Map
 @MapKey("id")
 Map<Integer, Blog> selectBlogMapByIds(@Param("ids") List<Integer> ids);
-```java
+```
 
 ## 排行榜功能
 

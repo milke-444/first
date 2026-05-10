@@ -48,4 +48,7 @@ public interface BlogMapper {
     // BlogMapper.java
     @MapKey("id")   // 指定 Map 的 key 为 blog 的 id 字段
     Map<Integer, Blog> selectBlogMapByIds(@Param("ids") List<Integer> ids);
+
+    @Select("select * from blog where blog_id = #{blogId}")
+    Blog selectById(Integer blogId);
 }

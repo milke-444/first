@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -85,6 +86,17 @@ public class BlogServiceImpl implements BlogService {
         blogMapper.save(blog);
         log.info("保存成功");
 
+        // =================== 博客名称缓存优化：新博客保存时更新缓存 ===================
+        // 获取新创建博客的ID（假设save方法返回ID或在blog对象中设置了ID）
+        // 注意：需要根据实际的ID获取方式调整
+        // 这里假设博客ID会在保存后自动设置到blog对象中
+        if (blog.getBlogId() != null) {
+            String cacheKey = "blog:name:" + blog.getBlogId();
+            // 将博客名称缓存到Redis，缓存24小时
+            redisTemplate.opsForValue().set(cacheKey, blog.getBlogName(), 24, TimeUnit.HOURS);
+            log.info("新博客缓存已更新 - BlogID: {}, BlogName: {}", blog.getBlogId(), blog.getBlogName());
+        }
+
     }
 
     @Override
@@ -109,9 +121,15 @@ public class BlogServiceImpl implements BlogService {
 
         Blog blog = new Blog();
         BeanUtils.copyProperties(updateBlogDto,blog);//拷贝属性
-//        blog.setBlogId(updateBlogDto.getBlogId());
+        blog.setBlogId(updateBlogDto.getBlogId()); // 确保博客ID正确设置
         blog.setBlogUpdateTime(new Date());
         blogMapper.update(blog);
+        
+        // =================== 博客名称缓存优化：博客更新时更新缓存 ===================
+        String cacheKey = "blog:name:" + updateBlogDto.getBlogId();
+        // 更新Redis缓存中的博客名称
+        redisTemplate.opsForValue().set(cacheKey, updateBlogDto.getBlogName(), 24, TimeUnit.HOURS);
+        log.info("博客缓存已更新 - BlogID: {}, BlogName: {}", updateBlogDto.getBlogId(), updateBlogDto.getBlogName());
     }
 
     @Override
@@ -140,9 +158,12 @@ public class BlogServiceImpl implements BlogService {
                 Arrays.asList(likeKey, ZSET_KEY),     // KEYS 列表（只有2个！）
                 userId, timestamp, zsetMember           // ARGV 列表（3个参数）
         );
-
-        return status == 1 ? Result.success("点赞成功", 1)
-                : Result.success("取消点赞成功", 0);
+        if (status != null && status == 1) {
+            cacheBlogName(blogid);
+            return Result.success("点赞成功", 1);
+        } else {
+            return Result.success("取消点赞成功", 0);
+        }
 
         //下面是旧的点赞功能代码，没有保证原子性，上述是用lua脚本实现的点赞代码，保证了原子性，避免了在高并发下的问题
 //        Boolean likeCount = stringRedisTemplate.opsForSet().isMember(likeKey,adminId.toString());//使用redis的set集合(有序)的score方法，查看用户是否点赞
@@ -165,9 +186,30 @@ public class BlogServiceImpl implements BlogService {
 //            log.info("点赞请求 - 当前线程: {}, 用户ID: {}", Thread.currentThread().getName(), adminId);
 //            return Result.success("取消点赞成功",0);
 //        }
+        // ✅ 点赞成功后，缓存博客名
+    }
 
 
 
+    /**
+     * 缓存博客名称到 Redis Hash
+     * 只有缓存未命中时才查数据库，每个博客一辈子只查一次
+     */
+    private void cacheBlogName(Integer blogId) {
+        String hashKey = "blog:name";
+        String field = blogId.toString();
+
+        // 1. 先查缓存
+        Boolean exists = stringRedisTemplate.opsForHash().hasKey(hashKey, field);
+        if (Boolean.TRUE.equals(exists)) {
+            return;  // 缓存已存在，不查库
+        }
+
+        // 2. 缓存没有，查数据库
+        Blog blog = blogMapper.selectById(blogId);
+        if (blog != null) {
+            stringRedisTemplate.opsForHash().put(hashKey, field, blog.getBlogName());
+        }
     }
 
     @Override
@@ -228,7 +270,7 @@ public class BlogServiceImpl implements BlogService {
 
     }
 
-   //TODO: 2023/9/20 创建一个redis的zset，存储点赞数，使用有序集合，方便排名,去理解其意义
+   //TODO: 2023/9/20 创建一个redis的zset，存储点赞数，使用有序集合，方便排名,去理解其意义，后续修改，让用户名称直接从缓存获取
     @Override
     public Result ranking() {
         // 获取前5名博客（带点赞数）
@@ -242,9 +284,7 @@ public class BlogServiceImpl implements BlogService {
 
         // 存储博客ID列表（去掉前缀）
         List<Integer> blogIds = new ArrayList<>();
-        Map<String, Double> scoreMap = new HashMap<>();
-
-        // 遍历ZSet中的元素，提取博客ID和点赞数
+        // 遍历ZSet中的元素，提取博客ID和点赞数,存放到list和map集合中
         for (ZSetOperations.TypedTuple<String> tuple : ranking) {
             String value = tuple.getValue();  // "zsetlike9"
             Double likes = tuple.getScore();
@@ -254,36 +294,65 @@ public class BlogServiceImpl implements BlogService {
             Integer blogId = Integer.parseInt(blogIdStr);
 
             blogIds.add(blogId);//存储博客ID
-            scoreMap.put(blogIdStr, likes);//存储点赞数，用于排行
         }
 
+        // 3. ✅ 从 Redis Hash 批量获取博客名称
+        Map<String, String> blogNameCache = new HashMap<>();
+        List<Integer> missingBlogIds = new ArrayList<>();
+        String hashKey = "blog:name";
 
-        // 构建返回结果
-        List<Map<String, Object>> rankingList = new ArrayList<>();//创建一个结果列表，存储每个博客的详细信息，json化
+        // 将获取的id批量转换为字符串，方便hasmap查询
+        List<String> fieldKeys = blogIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.toList());
+
+        // 批量获取博客名称
+        List<Object> cachedNames = stringRedisTemplate.opsForHash()
+                .multiGet(hashKey, new ArrayList<>(fieldKeys));
+
+        // 处理缓存结果
+        for (int i = 0; i < blogIds.size(); i++) {
+            String blogName = (String) cachedNames.get(i);
+            if (blogName != null) {
+                blogNameCache.put(blogIds.get(i).toString(), blogName);//缓存中存在，把博客名称存入到map集合中
+            } else {
+                missingBlogIds.add(blogIds.get(i));//不存在的博客id，存入到list集合中
+            }
+        }
+
+        // 4. ✅ 缓存未命中，从数据库批量查，回填 Redis，单独使用，避免在循环中出现多次调用问题
+        if (!missingBlogIds.isEmpty()) {
+            Map<Integer, Blog> blogMap = blogMapper.selectBlogMapByIds(missingBlogIds);//批量查询数据库
+            for (Integer blogId : missingBlogIds) {
+                Blog blog = blogMap.get(blogId);
+                String blogName = blog != null ? blog.getBlogName() : "已删除";
+                stringRedisTemplate.opsForHash().put(hashKey, blogId.toString(), blogName);
+                blogNameCache.put(blogId.toString(), blogName);//缓存未命中，把博客名称存入到map集合中
+            }
+        }
+
+        List<Map<String, Object>> rankingList = new ArrayList<>();
         int rank = 1;
 
-        //使用批量查询，修复n+1的必要
-        Map<Integer, Blog> blogMap = blogMapper.selectBlogMapByIds(blogIds);//获取博客名称,这里使用基础的数据库查询，出现一个博客查询一次的问题，直接提取全部要查询的id使用多查询，可避免多次使用数据库
         //遍历排行榜，构建返回结果
         for (ZSetOperations.TypedTuple<String> tuple : ranking) {
             String value = tuple.getValue();
-            Double likes = tuple.getScore();
 
             // 提取ID
-//            String blogIdStr = value.replace("zsetlike", "");上面已经有了，重复了
-//            Integer blogId = Integer.parseInt(blogIdStr);
-//
-//           List<Blog> blogs = blogMapper.selectblogname(blogIds);//获取博客名称,这里使用基础的数据库查询，出现一个博客查询一次的问题，直接提取全部要查询的id使用多查询，可避免多次使用数据库
             String blogIdStr = value.replace("zsetlike", "");
-            Integer blogId = Integer.parseInt(blogIdStr);//再次获取id用于进行结果的key值
-            Map<String, Object> item = new HashMap<>();//创建一个结果项，统一结果输出
-            item.put("rank", rank++);;
-            Blog blog = blogMap.get(blogId);//获取博客名称
-            item.put("blogTitle", blog != null ? blog.getBlogName() : "已删除");
-            item.put("totalLikes", likes != null ? likes.longValue() : 0);
+            Integer blogId = Integer.parseInt(blogIdStr);
+            Map<String, Object> item = new HashMap<>();
+            item.put("rank", rank++);//排行名次
+            
+            // 从Redis缓存中获取博客名称，避免数据库查询
+            String blogTitle = blogNameCache.get(blogId.toString());
+            item.put("blogTitle", blogTitle != null ? blogTitle : "未知博客");
 
             rankingList.add(item);
         }
+
+        log.info("排行榜查询完成 - 使用Redis缓存优化版本，缓存命中率: {}/{}", 
+                blogIds.size() - missingBlogIds.size(), blogIds.size());
 
         return Result.success(rankingList);
     }
@@ -312,9 +381,7 @@ public class BlogServiceImpl implements BlogService {
 
         }
         log.info("定时任务结束");
-
-
-
+        
     }
 
 

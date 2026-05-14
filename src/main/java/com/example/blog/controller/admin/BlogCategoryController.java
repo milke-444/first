@@ -1,13 +1,11 @@
 package com.example.blog.controller.admin;
 
-import com.example.blog.dto.BlogCategorySaveDto;
-import com.example.blog.dto.BlogCategoryUpdateDto;
-import com.example.blog.dto.ListCommenDto;
-import com.example.blog.dto.ListDto;
-import com.example.blog.entity.Blog;
+import com.example.blog.model.dto.BlogCategorySaveDto;
+import com.example.blog.model.dto.BlogCategoryUpdateDto;
+import com.example.blog.model.dto.ListDto;
 import com.example.blog.entity.BlogCategory;
 import com.example.blog.entity.PageResult;
-import com.example.blog.result.Result;
+import com.example.blog.common.result.Result;
 import com.example.blog.service.BlogCategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

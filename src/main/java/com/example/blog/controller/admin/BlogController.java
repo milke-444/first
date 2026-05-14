@@ -1,12 +1,12 @@
 package com.example.blog.controller.admin;
 
-import com.example.blog.context.BaseContext;
-import com.example.blog.dto.BlogCreateDto;
-import com.example.blog.dto.ListDto;
-import com.example.blog.dto.updateBlogDto;
+import com.example.blog.common.context.BaseContext;
+import com.example.blog.model.dto.BlogCreateDto;
+import com.example.blog.model.dto.ListDto;
+import com.example.blog.model.dto.UpdateBlogDto;
 import com.example.blog.entity.Blog;
 import com.example.blog.entity.PageResult;
-import com.example.blog.result.Result;
+import com.example.blog.common.result.Result;
 import com.example.blog.service.BlogService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -64,7 +64,7 @@ public class BlogController {
      * @param blogCreateDto
      * @return
      */
-    public Result update(@Valid @RequestBody updateBlogDto updateBlogDto){
+    public Result update(@Valid @RequestBody UpdateBlogDto updateBlogDto){
         blogService.updateBlog(updateBlogDto);
         return Result.success("修改成功");
     }

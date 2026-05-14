@@ -1,7 +1,7 @@
 package com.example.blog.aop;
 
 import com.alibaba.fastjson.JSON;
-import com.example.blog.context.BaseContext;
+import com.example.blog.common.context.BaseContext;
 import com.example.blog.entity.AopLog;
 import com.example.blog.service.AopStorage;
 import lombok.extern.slf4j.Slf4j;

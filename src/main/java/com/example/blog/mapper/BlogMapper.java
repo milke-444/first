@@ -1,7 +1,6 @@
 package com.example.blog.mapper;
 
-import com.example.blog.dto.BlogCreateDto;
-import com.example.blog.dto.ListDto;
+import com.example.blog.model.dto.ListDto;
 import com.example.blog.entity.Blog;
 import org.apache.ibatis.annotations.*;
 

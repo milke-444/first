@@ -2,10 +2,12 @@ package com.example.blog.service;
 
 
 import com.example.blog.dto.*;
-import com.example.blog.entity.BlogCategory;
 import com.example.blog.entity.BlogComment;
 import com.example.blog.entity.PageResult;
-import com.example.blog.result.Result;
+import com.example.blog.model.dto.BlogCommentSaveDto;
+import com.example.blog.model.dto.BlogCommentSaveReply;
+import com.example.blog.model.dto.CommentTreeDto;
+import com.example.blog.model.dto.ListCommenDto;
 
 import java.util.List;
 

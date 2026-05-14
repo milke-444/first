@@ -1,14 +1,14 @@
 package com.example.blog.controller.admin;
 
-import com.example.blog.context.BaseContext;
-import com.example.blog.dto.LoginDto;
-import com.example.blog.dto.SelectDto;
-import com.example.blog.dto.UpdateNameDto;
-import com.example.blog.dto.UpdatePasswordDto;
+import com.example.blog.common.context.BaseContext;
+import com.example.blog.model.dto.LoginDto;
+import com.example.blog.model.dto.SelectDto;
+import com.example.blog.model.dto.UpdateNameDto;
+import com.example.blog.model.dto.UpdatePasswordDto;
 import com.example.blog.entity.Admin;
-import com.example.blog.result.Result;
+import com.example.blog.common.result.Result;
 import com.example.blog.service.AdminService;
-import com.example.blog.vo.LoginVo;
+import com.example.blog.model.vo.LoginVo;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 package com.example.blog.controller.admin;
 
-import com.example.blog.result.Result;
+import com.example.blog.common.result.Result;
 import com.example.blog.util.AliOssUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

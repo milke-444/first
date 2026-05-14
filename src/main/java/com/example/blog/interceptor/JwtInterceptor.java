@@ -1,7 +1,7 @@
 package com.example.blog.interceptor;
 
-import com.example.blog.context.BaseContext;
-import com.example.blog.result.Result;
+import com.example.blog.common.context.BaseContext;
+import com.example.blog.common.result.Result;
 import com.example.blog.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -70,4 +70,10 @@ public class JwtInterceptor implements HandlerInterceptor {
 
 
    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        BaseContext.removeCurrentId();  // 请求结束后清理 ThreadLocal，防止内存泄漏
+    }
+    // 请求结束后清理 ThreadLocal，防止内存泄漏
 }

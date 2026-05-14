@@ -1,15 +1,15 @@
 package com.example.blog.service.impl;
 
-import com.example.blog.context.BaseContext;
-import com.example.blog.dto.BlogCreateDto;
-import com.example.blog.dto.ListDto;
-import com.example.blog.dto.updateBlogDto;
+import com.example.blog.common.context.BaseContext;
+import com.example.blog.model.dto.BlogCreateDto;
+import com.example.blog.model.dto.ListDto;
+import com.example.blog.model.dto.UpdateBlogDto;
 import com.example.blog.entity.Blog;
 import com.example.blog.entity.BlogCategory;
 import com.example.blog.entity.PageResult;
 import com.example.blog.mapper.BlogCategoryMapper;
 import com.example.blog.mapper.BlogMapper;
-import com.example.blog.result.Result;
+import com.example.blog.common.result.Result;
 import com.example.blog.service.BlogService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -100,7 +100,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public void updateBlog(updateBlogDto updateBlogDto) {
+    public void updateBlog(UpdateBlogDto updateBlogDto) {
         Blog existingBlog = blogMapper.getid(updateBlogDto.getBlogId());
         if (existingBlog == null){
             log.info("此博客已失效");
@@ -283,7 +283,7 @@ public class BlogServiceImpl implements BlogService {
         }
 
         // 存储博客ID列表（去掉前缀）
-        List<Integer> blogIds = new ArrayList<>();
+        List<Integer> blogIds = new ArrayList<>();//使用list原因，意思id属性本身没有key的需求，二是数据简单，用不到has
         // 遍历ZSet中的元素，提取博客ID和点赞数,存放到list和map集合中
         for (ZSetOperations.TypedTuple<String> tuple : ranking) {
             String value = tuple.getValue();  // "zsetlike9"
@@ -297,7 +297,7 @@ public class BlogServiceImpl implements BlogService {
         }
 
         // 3. ✅ 从 Redis Hash 批量获取博客名称
-        Map<String, String> blogNameCache = new HashMap<>();
+        Map<String, String> blogNameCache = new HashMap<>();//使用has原因可以快速获取博客名称，如果使用list需要遍历数据，耗时多
         List<Integer> missingBlogIds = new ArrayList<>();
         String hashKey = "blog:name";
 
@@ -316,7 +316,7 @@ public class BlogServiceImpl implements BlogService {
             if (blogName != null) {
                 blogNameCache.put(blogIds.get(i).toString(), blogName);//缓存中存在，把博客名称存入到map集合中
             } else {
-                missingBlogIds.add(blogIds.get(i));//不存在的博客id，存入到list集合中
+                missingBlogIds.add(blogIds.get(i));//不存在的博客id，存入到list集合中，应为只有id没有对应的数据，所以直接遍历不需要查找
             }
         }
 
@@ -330,8 +330,8 @@ public class BlogServiceImpl implements BlogService {
                 blogNameCache.put(blogId.toString(), blogName);//缓存未命中，把博客名称存入到map集合中
             }
         }
-
-        List<Map<String, Object>> rankingList = new ArrayList<>();
+        //TODO:固定数据使用vo限制更安全，避免数据混乱
+        List<Map<String, Object>> rankingList = new ArrayList<>();//list有序集合便于数据排序，避免数据乱序，内使用has是用于输出数据，后面可以使用vo输出，更安全
         int rank = 1;
 
         //遍历排行榜，构建返回结果
@@ -381,7 +381,7 @@ public class BlogServiceImpl implements BlogService {
 
         }
         log.info("定时任务结束");
-        
+
     }
 
 

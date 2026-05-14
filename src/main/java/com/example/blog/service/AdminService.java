@@ -1,10 +1,8 @@
 package com.example.blog.service;
 
-import com.example.blog.dto.LoginDto;
+import com.example.blog.model.dto.LoginDto;
 import com.example.blog.entity.Admin;
-import com.example.blog.result.Result;
-import com.example.blog.vo.LoginVo;
-import org.springframework.boot.autoconfigure.cassandra.CassandraProperties;
+import com.example.blog.model.vo.LoginVo;
 
 public interface AdminService {
     LoginVo adminlogin(LoginDto loginDto);

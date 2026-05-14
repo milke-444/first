@@ -1,7 +1,7 @@
 # application.yml
 aliyun:
   oss:
-    endpoint: ${ALIYUN_NATION}}
+    endpoint: ${ALIYUN_NATION}
     access-key-id: ${ALIYUN_ACCESS_KEY_ID}
     access-key-secret: ${ALIYUN_ACCESS_KEY_SECRET}
     bucket-name: firstbloglk

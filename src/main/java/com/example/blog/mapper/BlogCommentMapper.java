@@ -1,12 +1,13 @@
 package com.example.blog.mapper;
 
 import com.example.blog.dto.*;
-import com.example.blog.entity.BlogCategory;
 import com.example.blog.entity.BlogComment;
-import com.example.blog.result.Result;
+import com.example.blog.model.dto.BlogCommentSaveDto;
+import com.example.blog.model.dto.BlogCommentSaveReply;
+import com.example.blog.model.dto.CommentTreeDto;
+import com.example.blog.model.dto.ListCommenDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

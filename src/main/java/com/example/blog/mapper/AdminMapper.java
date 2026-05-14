@@ -1,9 +1,6 @@
 package com.example.blog.mapper;
 import com.example.blog.entity.Admin;
-import com.example.blog.vo.LoginVo;
 import org.apache.ibatis.annotations.*;
-
-import java.util.Map;
 
 @Mapper
 public interface AdminMapper {

@@ -1,11 +1,11 @@
 package com.example.blog.service;
 
-import com.example.blog.dto.BlogCreateDto;
-import com.example.blog.dto.ListDto;
-import com.example.blog.dto.updateBlogDto;
+import com.example.blog.model.dto.BlogCreateDto;
+import com.example.blog.model.dto.ListDto;
+import com.example.blog.model.dto.UpdateBlogDto;
 import com.example.blog.entity.Blog;
 import com.example.blog.entity.PageResult;
-import com.example.blog.result.Result;
+import com.example.blog.common.result.Result;
 
 public interface BlogService {
     PageResult<Blog> list(ListDto listDto);
@@ -14,7 +14,7 @@ public interface BlogService {
 
     void save(BlogCreateDto blogCreateDto);
 
-    void updateBlog(updateBlogDto updateBlogDto);
+    void updateBlog(UpdateBlogDto updateBlogDto);
 
     void logicDelete(Integer blogid);
 

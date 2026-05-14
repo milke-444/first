@@ -48,3 +48,40 @@ for (Tuple tuple : ranking) {
 // 优化后：一次批量查，返回 Map
 @MapKey("id")
 Map<Integer, Blog> selectBlogMapByIds(@Param("ids") List<Integer> ids);
+```
+
+## 排行榜功能
+
+### 使用技术
+- **Redis ZSet**：利用其自带排序和范围查找能力，实现高效的热度排行榜。
+
+### 核心设计
+- **全局排行榜 Key**：统一存放所有博客的点赞热度，便于全局排名。
+```java
+String ZSET_KEY = "zsetlikevalue";
+```
+- **博客局部 Key**：记录单篇博客的点赞时间戳，可用于局部排名或展示。
+```java
+String zsetMember = "zsetlike" + blogId;
+```
+- **Set 去重计数**：通过 `SCARD` 获取真实点赞数，与 ZSet 时间排序解耦。
+```java
+String likeKey = "like" + blogId;
+Long realLikes = stringRedisTemplate.opsForSet().size(likeKey);
+```
+
+### 设计思路
+- **热度排行榜**：ZSet 的 `score` 存点赞时间戳，按“最近被谁点赞”排序。
+- **点赞数排行榜**：将 ZSet `score` 改为点赞数（`ZINCRBY`），按“谁被赞最多”排序。
+- **名称缓存**：点赞时同步将博客名写入 Redis Hash（`blog:name`）。
+```java
+stringRedisTemplate.opsForHash().put("blog:name", blogId.toString(), blog.getBlogName());
+```
+
+### 问题与优化
+| 问题 | 优化方案 |
+| :--- | :--- |
+| 排行榜循环查库取博客名（N+1） | 批量 `HMGET` 从 Redis Hash 获取 |
+| ZSet `score` 存时间戳，误当点赞数展示 | 改为从 Set `SCARD` 取真实点赞数 |
+| 缓存冷启动 | 点赞时主动缓存博客名 |
+| 缓存命中率不可见 | 添加日志输出命中率 |

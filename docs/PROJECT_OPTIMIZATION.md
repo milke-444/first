@@ -5,9 +5,8 @@
 3	分包结构调整（entity/vo/dto）	✅ 完成	—
 4	全局统一返回格式	✅ 完成	—
 5	全局异常处理器	⚠️ 部分完成	补充业务异常（如：博客不存在、权限不足、评论重复）
-6	接口参数校验注解补全	⬜ 未开始	给 LoginDto、BlogDto 等加 @NotBlank、@NotNull
-7	ThreadLocal 内存泄漏修复	⬜ 未开始	拦截器 afterCompletion 中加 BaseContext.remove()
-8	清理未使用的依赖与导入	⬜ 未开始	检查 pom.xml 和未使用的 import
+6	接口参数校验注解补全	✅ 完成	给 LoginDto、BlogDto 等加 @NotBlank、@NotNull
+7	ThreadLocal 内存泄漏修复	✅ 完成拦截器 afterCompletion 中加 BaseContext.remove()
 阶段二：内容分类体系搭建（预计 1-2 天）
 序号	任务	状态	下一步具体操作
 1	文章表加 type 和 tag 字段	⬜	ALTER TABLE article ADD COLUMN type VARCHAR(20)

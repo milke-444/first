@@ -23,4 +23,92 @@ public class CommentTreeDto {
 
     //子评论列表
     private List<CommentTreeDto> children;
+
+    public Long getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(Long commentId) {
+        this.commentId = commentId;
+    }
+
+    public Long getBlogId() {
+        return blogId;
+    }
+
+    public void setBlogId(Long blogId) {
+        this.blogId = blogId;
+    }
+
+    public Long getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(Long adminId) {
+        this.adminId = adminId;
+    }
+
+    public String getCommentBody() {
+        return commentBody;
+    }
+
+    public void setCommentBody(String commentBody) {
+        this.commentBody = commentBody;
+    }
+
+    public String getCommentCreateTime() {
+        return commentCreateTime;
+    }
+
+    public void setCommentCreateTime(String commentCreateTime) {
+        this.commentCreateTime = commentCreateTime;
+    }
+
+    public Byte getIsDleted() {
+        return isDleted;
+    }
+
+    public void setIsDleted(Byte isDleted) {
+        this.isDleted = isDleted;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getReplyBody() {
+        return replyBody;
+    }
+
+    public void setReplyBody(String replyBody) {
+        this.replyBody = replyBody;
+    }
+
+    public Byte getCommentStatus() {
+        return commentStatus;
+    }
+
+    public void setCommentStatus(Byte commentStatus) {
+        this.commentStatus = commentStatus;
+    }
+
+    public Date getReplyCreateTime() {
+        return replyCreateTime;
+    }
+
+    public void setReplyCreateTime(Date replyCreateTime) {
+        this.replyCreateTime = replyCreateTime;
+    }
+
+    public List<CommentTreeDto> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<CommentTreeDto> children) {
+        this.children = children;
+    }
 }

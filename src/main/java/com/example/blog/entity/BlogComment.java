@@ -27,8 +27,83 @@ public class BlogComment {
     private Date replyCreateTime;//回复创建时间
     private Byte commentStatus;//评论状态：0-审核中；1-审核通过
 
+    public Long getCommentId() {
+        return commentId;
+    }
 
+    public void setCommentId(Long commentId) {
+        this.commentId = commentId;
+    }
 
+    public Long getBlogId() {
+        return blogId;
+    }
 
+    public void setBlogId(Long blogId) {
+        this.blogId = blogId;
+    }
 
+    public Long getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(Long adminId) {
+        this.adminId = adminId;
+    }
+
+    public String getCommentBody() {
+        return commentBody;
+    }
+
+    public void setCommentBody(String commentBody) {
+        this.commentBody = commentBody;
+    }
+
+    public String getCommentCreateTime() {
+        return commentCreateTime;
+    }
+
+    public void setCommentCreateTime(String commentCreateTime) {
+        this.commentCreateTime = commentCreateTime;
+    }
+
+    public Byte getIsDleted() {
+        return isDleted;
+    }
+
+    public void setIsDleted(Byte isDleted) {
+        this.isDleted = isDleted;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getReplyBody() {
+        return replyBody;
+    }
+
+    public void setReplyBody(String replyBody) {
+        this.replyBody = replyBody;
+    }
+
+    public Date getReplyCreateTime() {
+        return replyCreateTime;
+    }
+
+    public void setReplyCreateTime(Date replyCreateTime) {
+        this.replyCreateTime = replyCreateTime;
+    }
+
+    public Byte getCommentStatus() {
+        return commentStatus;
+    }
+
+    public void setCommentStatus(Byte commentStatus) {
+        this.commentStatus = commentStatus;
+    }
 }

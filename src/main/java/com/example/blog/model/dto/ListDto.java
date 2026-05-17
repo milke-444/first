@@ -19,6 +19,22 @@ public class ListDto {
     @Max(value = 100, message = "页大小不能大于100")
     private Integer pageSize;
 
+    public @NotNull(message = "页码不能为空") @Min(value = 1, message = "页码不能小于1") Integer getPage() {
+        return page;
+    }
+
+    public void setPage(@NotNull(message = "页码不能为空") @Min(value = 1, message = "页码不能小于1") Integer page) {
+        this.page = page;
+    }
+
+    public @NotNull(message = "页大小不能为空") @Min(value = 1, message = "页大小不能小于1") @Max(value = 100, message = "页大小不能大于100") Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(@NotNull(message = "页大小不能为空") @Min(value = 1, message = "页大小不能小于1") @Max(value = 100, message = "页大小不能大于100") Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
     public Integer getStart() {
         return (page - 1) * pageSize;
     }

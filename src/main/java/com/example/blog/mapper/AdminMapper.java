@@ -1,5 +1,6 @@
 package com.example.blog.mapper;
 import com.example.blog.entity.Admin;
+import com.example.blog.model.dto.ResigerDto;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
@@ -8,7 +9,7 @@ public interface AdminMapper {
     Admin adminlogin(String adminAccount, String adminPassword);
 
 //    @Insert("insert into admin(admin_name ,admin_account,admin_password) values(#{adminAccount},#{adminPassword}, #{adminName})")
-    void adminRegister(Admin admin);
+    void adminRegister(ResigerDto admin);
 
     @Select("select * from admin where admin_id=#{adminId}")
     Admin getById(Integer adminId);

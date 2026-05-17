@@ -1,6 +1,6 @@
 package com.example.blog.mapper;
 
-import com.example.blog.dto.*;
+
 import com.example.blog.entity.BlogComment;
 import com.example.blog.model.dto.BlogCommentSaveDto;
 import com.example.blog.model.dto.BlogCommentSaveReply;

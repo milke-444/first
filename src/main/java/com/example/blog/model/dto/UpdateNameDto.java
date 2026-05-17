@@ -14,4 +14,20 @@ public class UpdateNameDto {
     private String oldName;
     @NotBlank(message = "用户名称不能为空")
     private String newName;
+
+    public @NotBlank(message = "用户名称不能为空") String getOldName() {
+        return oldName;
+    }
+
+    public void setOldName(@NotBlank(message = "用户名称不能为空") String oldName) {
+        this.oldName = oldName;
+    }
+
+    public @NotBlank(message = "用户名称不能为空") String getNewName() {
+        return newName;
+    }
+
+    public void setNewName(@NotBlank(message = "用户名称不能为空") String newName) {
+        this.newName = newName;
+    }
 }

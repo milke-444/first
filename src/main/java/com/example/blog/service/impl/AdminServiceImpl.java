@@ -7,6 +7,7 @@ import com.example.blog.common.globalException.UserException;
 import com.example.blog.model.dto.LoginDto;
 import com.example.blog.entity.Admin;
 import com.example.blog.mapper.AdminMapper;
+import com.example.blog.model.dto.ResigerDto;
 import com.example.blog.model.vo.common.ExceptionCommon;
 import com.example.blog.service.AdminService;
 import com.example.blog.util.JwtUtil;
@@ -51,8 +52,8 @@ public class AdminServiceImpl implements AdminService {
         claims.put("adminId",loginadmin.getAdminId());
         claims.put("adminAccount",loginadmin.getAdminAccount());
 
-        String role = loginadmin.getRole();
-        StpUtil.login(loginadmin.getAdminId(),role);
+//        String role = loginadmin.getRole();
+//        StpUtil.login(loginadmin.getAdminId(),role);
         String jwt = JwtUtil.generateJwt(claims);
         //创建redis用于进行jwt的存储
         ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();//创建redis操作对象
@@ -70,7 +71,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void adminRegister(Admin admin) {
+    public void adminRegister(ResigerDto admin) {
         if (admin ==  null){
             log.info("用户不能为空");
             throw new UserException(ExceptionCommon.PARAM_ERROR);//这段异常信息只有后端才能看见，使用异常处理的原因是为了让这个异常可以别用户正确看到

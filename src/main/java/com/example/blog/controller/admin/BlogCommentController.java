@@ -1,6 +1,5 @@
 package com.example.blog.controller.admin;
 
-import com.example.blog.dto.*;
 import com.example.blog.entity.BlogComment;
 import com.example.blog.entity.PageResult;
 import com.example.blog.common.result.Result;

@@ -51,8 +51,14 @@ public class Result {
 
     // 请求失败
     public static Result failure(String defaultFailureMessage) {
-        return failure(ResultConstant.DEFAULT_FAILURE_MESSAGE);
+        return Result.builder()
+                .code(ResultConstant.FAILURE)
+                .message(defaultFailureMessage)
+                .build();
+
     }
+
+
     // 返回一个失败的Result对象，指定自定义消息
     public static Result error(String message, Integer code) {
         return Result.builder()

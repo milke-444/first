@@ -1,10 +1,7 @@
 package com.example.blog.controller.admin;
 
 import com.example.blog.common.context.BaseContext;
-import com.example.blog.model.dto.LoginDto;
-import com.example.blog.model.dto.SelectDto;
-import com.example.blog.model.dto.UpdateNameDto;
-import com.example.blog.model.dto.UpdatePasswordDto;
+import com.example.blog.model.dto.*;
 import com.example.blog.entity.Admin;
 import com.example.blog.common.result.Result;
 import com.example.blog.service.AdminService;
@@ -43,6 +40,7 @@ public class AdminController {
     @PostMapping("/login")
     public Result login(@Valid @RequestBody LoginDto loginDto) {
 
+        //增加登录限流功能
        //登录成功，返回用户信息通过用户信息来生成jwt临牌
 //        if(login != null){
 //            Map<String,Object> claims = new HashMap<>();
@@ -73,7 +71,7 @@ public class AdminController {
     }
 
     @PostMapping("/register")
-    public Result register(@Valid @RequestBody Admin admin ){
+    public Result register(@Valid @RequestBody ResigerDto admin ){
         log.info("用户注册:{}", admin);
         if (admin ==  null){
             log.info("用户不能为空");

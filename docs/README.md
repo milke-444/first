@@ -1,6 +1,6 @@
 # 📚 技术笔记目录
-1. reids数据结构
-2. MySQL的索引和底层实现（B+tree）（x）
+1. reids数据结构(√)
+2. MySQL的索引和底层实现（B+tree）（√）
 3. lua脚本保证redis原子性(x)
 4. MySQL的优化和提升(x)
 5. 拦截器的相关(x)

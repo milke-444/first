@@ -41,8 +41,8 @@
 ┌─────────────────────────────────────────────────────┐
 │ 第一阶段：修 Bug + 填补空白（1-2 周）                   │
 ├─────────────────────────────────────────────────────┤
-│ 1. 修复 BlogCommentMapper 的两个致命 Bug               │
-│ 2. 修复 blogGgeer 拼写                                        │
+│ 1. 修复 BlogCommentMapper 的两个致命 Bug   (√)            │
+│ 2. 修复 blogGgeer 拼写   （√）                                     │
 │ 3. JWT 密钥移到 .env                                          │
 │ 4. 给关键写操作加上 @Transactional(rollbackFor=Exception.class) │
 │ 5. 用 BCryptPasswordEncoder 替换 MD5                         │

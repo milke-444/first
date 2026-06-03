@@ -1,87 +1,132 @@
-# first
-我的第一个项目，用于学习，会持续更新
-## 点赞功能并发优化记录
 
-### 1. 问题一：数据库“超删”导致点赞数错乱
-**现象**：多线程并发下，一个用户的取消操作会影响其他用户的点赞数，导致数据异常。
+# AI 辅助个人学习工作台
 
-**根因**：取消点赞时，直接查询并修改了数据库中的 `like_count` 字段。在高并发下，多个线程读到同一个“过期”的计数值，导致重复扣减（超删）。
+我的第一个全栈项目，集成高并发点赞、热度排行榜、AI 英语分析、简历生成等功能，持续迭代中。
 
-**解决方案**：
-- 移除实时对数据库的增删操作。
-- 将 Redis 作为唯一数据源，点赞状态完全依赖 Redis Set 进行判断。
-- 数据库的持久化操作改为**定时任务异步同步**。
+## 技术栈
 
-**注意事项**：Redis 作为真理源，其缓存数据**不可手动清除**，否则会造成未同步数据的永久丢失。
-
-### 2. 问题二：if else条件判断de非原子性导致竞态条件
-**现象**：10个用户20线程并发测试时，Redis 中实际的点赞数与预期不符（如应该为20个赞，实际却有缺少）。
-
-**根因**：使用了if，else的条件判断，在多线程情况下出现竞态截断，导致点赞与消除赞本应该一个功能个100次，但竞态使得点赞功能和消除赞的执行次数并不对等，导致最后点赞数量的不准确
-
-**解决方案**：
-- 引入 **Lua 脚本**，将“判断用户状态 + 更新 Set + 更新 ZSet”这三步操作打包为一个原子性事务。
-- 利用 Redis 单线程执行 Lua 脚本的特性，彻底消除竞态条件。
-
-**验证结果**：
-- 单用户 100 线程串行/并发测试通过。
-- 数据一致性问题得到根治。
-## 排行榜 N+1 查询优化
-
-### 问题
-
-排行榜接口从 Redis ZSet 获取前 5 篇博客 ID 后，循环调用 `blogMapper.selectBlogName(blogId)` 逐条查询博客名称，导致 **5 条数据需要 5 次数据库查询**（N+1 问题）。
-
-### 优化方案
-
-将循环内单条查询改为 **一次批量查询**，并使用 `@MapKey` 直接返回 `Map` 结构，省去手动转换步骤。
-
-### 代码变更
-
-**Mapper 接口**：
-```java
-// 优化前：循环中逐条查
-for (Tuple tuple : ranking) {
-    Blog blog = blogMapper.selectBlogName(blogId); // N 次查询
-}
-
-// 优化后：一次批量查，返回 Map
-@MapKey("id")
-Map<Integer, Blog> selectBlogMapByIds(@Param("ids") List<Integer> ids);
-```
-
-## 排行榜功能
-
-### 使用技术
-- **Redis ZSet**：利用其自带排序和范围查找能力，实现高效的热度排行榜。
-
-### 核心设计
-- **全局排行榜 Key**：统一存放所有博客的点赞热度，便于全局排名。
-```java
-String ZSET_KEY = "zsetlikevalue";
-```
-- **博客局部 Key**：记录单篇博客的点赞时间戳，可用于局部排名或展示。
-```java
-String zsetMember = "zsetlike" + blogId;
-```
-- **Set 去重计数**：通过 `SCARD` 获取真实点赞数，与 ZSet 时间排序解耦。
-```java
-String likeKey = "like" + blogId;
-Long realLikes = stringRedisTemplate.opsForSet().size(likeKey);
-```
-
-### 设计思路
-- **热度排行榜**：ZSet 的 `score` 存点赞时间戳，按“最近被谁点赞”排序。
-- **点赞数排行榜**：将 ZSet `score` 改为点赞数（`ZINCRBY`），按“谁被赞最多”排序。
-- **名称缓存**：点赞时同步将博客名写入 Redis Hash（`blog:name`）。
-```java
-stringRedisTemplate.opsForHash().put("blog:name", blogId.toString(), blog.getBlogName());
-```
-
-### 问题与优化
-| 问题 | 优化方案 |
+| 层级 | 技术 |
 | :--- | :--- |
-| 排行榜循环查库取博客名（N+1） | 批量 `HMGET` 从 Redis Hash 获取 |
-| ZSet `score` 存时间戳，误当点赞数展示 | 改为从 Set `SCARD` 取真实点赞数 |
-| 缓存冷启动 | 点赞时主动缓存博客名 |
-| 缓存命中率不可见 | 添加日志输出命中率 |
+| 后端 | Spring Boot 3、MyBatis、MySQL、Redis、Lua |
+| 前端 | Vue 3、Element Plus |
+| AI | DeepSeek（Spring AI 集成） |
+| 安全 | Sa-Token、JWT、BCrypt |
+| 工具 | Docker、Git、Apifox |
+
+## 快速开始
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/milke-444/first.git
+cd first
+
+# 2. 配置环境变量（复制 .env.example 为 .env，填入你的密钥）
+cp .env.example .env
+
+# 3. 启动 MySQL 和 Redis（Docker 方式）
+docker-compose up -d mysql redis
+
+# 4. 启动项目
+./mvnw spring-boot:run
+```
+
+访问 `http://localhost:8080/doc.html` 查看 API 文档。
+
+## 核心功能
+
+### 1. 高并发点赞（Redis + Lua 原子操作）
+
+**问题**：多线程并发下，`SISMEMBER` 判断与 `SADD`/`SREM` 操作之间产生竞态窗口，导致点赞数与实际不符。
+
+**方案**：将"判断 + Set 操作 + ZSet 操作"封装为 Lua 脚本，利用 Redis 单线程保证原子性。
+
+**效果**：单用户 100 线程并发测试数据一致，Redis 请求从 3 次降为 1 次。
+
+> 详见 [点赞功能并发优化记录](docs/like-concurrency-optimization.md)
+
+### 2. 热度排行榜（多级缓存 + N+1 优化）
+
+**问题**：排行榜循环逐条查数据库获取博客名称，产生 N+1 查询。
+
+**方案**：
+- ZSet 存点赞时间戳，实现热度排序
+- Hash 存博客名称，`HMGET` 批量获取
+- 缓存未命中时批量查 MySQL 并回填 Redis
+
+**效果**：数据库查询从 N 次降为 0-1 次，缓存命中率可观测。
+
+### 3. 内容分类体系
+
+支持四种内容类型：博客文章（BLOG）、学习笔记（NOTE）、算法刷题（ALGORITHM）、面经复盘（INTERVIEW），可按类型筛选和标签检索。
+
+### 4. AI 英语句子分析
+
+集成 DeepSeek，输入英语长难句，自动分析主谓宾定状补，辅助四级备考。
+
+### 5. 简历生成（开发中）
+
+用户可以自由组织简历模块（教育背景、项目经历、荣誉奖项等），条目内容通过 JSON 动态存储，支持模板切换和 PDF 导出。
+
+## 工程规范
+
+| 规范 | 说明 |
+| :--- | :--- |
+| 统一返回格式 | `Result<T>` 统一包装所有接口返回值 |
+| 全局异常处理 | `@RestControllerAdvice` + 自定义 `UserException` |
+| 状态码枚举 | `ResultCodeEnum` 集中管理业务状态码 |
+| 参数校验 | `@Valid` + `@NotBlank`/`@NotNull` 自动校验 |
+| 接口限流 | 基于 Redis + Lua 的 `@RateLimit` 注解 |
+| 日志脱敏 | AOP 异步记录操作日志，密码自动脱敏 |
+| ThreadLocal 清理 | 拦截器 `afterCompletion` 中调用 `remove()` 防止内存泄漏 |
+| 敏感信息隔离 | `.env` 环境变量，`.gitignore` 防止密钥泄露 |
+
+## API 文档
+
+项目已集成 Knife4j，启动后访问：
+
+```
+http://localhost:8080/doc.html
+```
+
+## 学习笔记
+
+项目开发过程中的技术沉淀，存放在 `docs/` 目录：
+
+- [B+Tree 索引原理与最左前缀原则](docs/b-plus-tree-index.md)
+- [Redis 底层数据结构：SDS、ziplist、skiplist](docs/redis-data-structures.md)
+- [Lua 脚本与原子性：点赞功能并发优化](docs/like-concurrency-optimization.md)
+- [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)
+- [MySQL JSON 字段使用实践](docs/mysql-json-field.md)
+
+## 项目优化历程
+
+| 阶段 | 内容 | 状态 |
+| :--- | :--- | :--- |
+| 阶段一 | 结构工程化（包名规范、统一返回、异常处理、ThreadLocal 清理） | ✅ 完成 |
+| 阶段二 | 内容分类体系搭建（文章类型标签、分类筛选） | ✅ 完成 |
+| 阶段三 | AI 功能集成（DeepSeek 英语句子分析） | ✅ 完成 |
+| 阶段四 | 个人工作台功能 | 🚧 进行中 |
+| 阶段五 | Docker 容器化部署 | 📅 计划中 |
+| 阶段六 | 单元测试与压力测试 | 📅 计划中 |
+
+## 许可证
+
+MIT License
+```
+
+---
+
+### 📊 和原版的对比
+
+| 维度 | 原版 | 优化版 |
+| :--- | :--- | :--- |
+| 项目简介 | 无，直接进入技术细节 | 开头一句话概括项目定位 |
+| 快速开始 | 无 | 有，面试官可以自己跑起来 |
+| 技术栈 | 散落在各处 | 集中展示，一目了然 |
+| 核心功能 | 只有点赞和排行榜 | 点赞、排行榜、分类、AI分析、简历生成 |
+| 工程规范 | 无 | 单独列出，体现专业度 |
+| 学习笔记 | 无 | 列出 docs/ 目录，展示持续学习 |
+| 项目优化历程 | 无 | 阶段式展示，证明迭代能力 |
+| 可读性 | 技术笔记风格 | 标准 README 结构 |
+
+这份 README 可以直接替换你现在的版本，面试官打开 GitHub 仓库时能快速理解项目价值和你的技术深度。

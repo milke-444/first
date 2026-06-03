@@ -37,8 +37,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public LoginVo adminlogin(LoginDto loginDto) {
         String md5Password = DigestUtils.md5DigestAsHex(loginDto.getAdminPassword().getBytes()).toUpperCase();//密码加密,注意数据库中是大写，记得加上touppercase
-        loginDto.setAdminPassword(md5Password);
-        String adminPassword = loginDto.getAdminPassword();
+        String adminPassword = md5Password;
         String adminAccount = loginDto.getAdminAccount();
         Admin loginadmin =  adminMapper.adminlogin(adminAccount, adminPassword);
         if (loginadmin == null) {
@@ -51,7 +50,6 @@ public class AdminServiceImpl implements AdminService {
         Map<String,Object> claims = new HashMap<>();
         claims.put("adminId",loginadmin.getAdminId());
         claims.put("adminAccount",loginadmin.getAdminAccount());
-
 //        String role = loginadmin.getRole();
 //        StpUtil.login(loginadmin.getAdminId(),role);
         String jwt = JwtUtil.generateJwt(claims);
@@ -82,9 +80,6 @@ public class AdminServiceImpl implements AdminService {
         admin.setAdminPassword(md5Password);
         adminMapper.adminRegister(admin);
         log.info("用户注册成功:{}", admin);
-
-
-
 
     }
 

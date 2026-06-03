@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.blog.mapper.ResumeSectionMapper">
+
+    <!-- 模块+条目嵌套映射
+        当查询简历下的所有模块时，同时通过 collection 查询每个模块下的条目
+        column="id" 将模块表的主键传给 ResumeItemMapper.selectBySectionId 作为参数 -->
+    <resultMap id="sectionWithItemsMap" type="com.example.blog.entity.ResumeSection">
+        <id property="id" column="id"/>
+        <result property="resumeId" column="resume_id"/>
+        <result property="sectionType" column="section_type"/>
+        <result property="customLabel" column="custom_label"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="visible" column="visible"/>
+        <result property="createdAt" column="created_at"/>
+        <collection property="items" ofType="com.example.blog.entity.ResumeItem"
+                    column="id" select="com.example.blog.mapper.ResumeItemMapper.selectBySectionId"/>
+    </resultMap>
+
+    <!-- 新增模块 -->
+    <insert id="insert" parameterType="com.example.blog.entity.ResumeSection" useGeneratedKeys="true" keyProperty="id">
+        insert into resume_section(resume_id, section_type, custom_label, sort_order, visible, created_at)
+        values(#{resumeId}, #{sectionType}, #{customLabel}, #{sortOrder}, #{visible}, NOW())
+    </insert>
+
+    <!-- 根据ID查询单个模块（不含条目） -->
+    <select id="selectById" resultType="com.example.blog.entity.ResumeSection">
+        select * from resume_section where id = #{id}
+    </select>
+
+    <!-- 查询某简历下的所有模块（含每个模块下的条目），按 sort_order 升序 -->
+    <select id="selectByResumeId" resultMap="sectionWithItemsMap">
+        select * from resume_section where resume_id = #{resumeId} order by sort_order asc
+    </select>
+
+    <!-- 更新模块信息，使用动态SQL只更新非空字段 -->
+    <update id="update" parameterType="com.example.blog.entity.ResumeSection">
+        update resume_section
+        <set>
+            <if test="sectionType != null">section_type = #{sectionType},</if>
+            <if test="customLabel != null">custom_label = #{customLabel},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="visible != null">visible = #{visible},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 删除单个模块（注意：此操作前应先删除该模块下的条目，否则会违反外键约束） -->
+    <delete id="deleteById">
+        delete from resume_section where id = #{id}
+    </delete>
+
+    <!-- 删除某简历下的所有模块（用于级联删除简历时使用） -->
+    <delete id="deleteByResumeId">
+        delete from resume_section where resume_id = #{resumeId}
+    </delete>
+
+</mapper>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.blog.mapper.ResumeMapper">
+
+    <!-- 简历详情映射（含级联的模块和条目）
+        通过 MyBatis collection 实现三层嵌套：
+        resume -> resume_section(selectByResumeId) -> resume_item(selectBySectionId)
+        column="id" 表示将查询结果的 id 列值作为参数传给嵌套查询 -->
+    <resultMap id="resumeDetailMap" type="com.example.blog.entity.Resume">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="name" column="name"/>
+        <result property="templateType" column="template_type"/>
+        <result property="isDefault" column="is_default"/>
+        <result property="status" column="status"/>
+        <result property="aiSummary" column="ai_summary"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <collection property="sections" ofType="com.example.blog.entity.ResumeSection"
+                    column="id" select="com.example.blog.mapper.ResumeSectionMapper.selectByResumeId"/>
+    </resultMap>
+
+    <!-- 新增简历，使用 useGeneratedKeys 自动回填主键到实体类的 id 字段 -->
+    <insert id="insert" parameterType="com.example.blog.entity.Resume" useGeneratedKeys="true" keyProperty="id">
+        insert into resume(user_id, name, template_type, is_default, status, created_at, updated_at)
+        values(#{userId}, #{name}, #{templateType}, #{isDefault}, #{status}, NOW(), NOW())
+    </insert>
+
+    <!-- 查询简历详情（含模块和条目） -->
+    <select id="selectDetailById" resultMap="resumeDetailMap">
+        select * from resume where id = #{id}
+    </select>
+
+    <!-- 查询简历基本信息（不含模块条目，用于列表展示和存在性校验） -->
+    <select id="selectById" resultType="com.example.blog.entity.Resume">
+        select * from resume where id = #{id}
+    </select>
+
+    <!-- 查询某用户的所有简历，按更新时间倒序 -->
+    <select id="selectByUserId" resultType="com.example.blog.entity.Resume">
+        select * from resume where user_id = #{userId} order by updated_at desc
+    </select>
+
+    <!-- 更新简历基本信息
+        使用 <set> + <if> 动态SQL，只更新非空字段，支持部分更新 -->
+    <update id="update" parameterType="com.example.blog.entity.Resume">
+        update resume
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="templateType != null">template_type = #{templateType},</if>
+            <if test="isDefault != null">is_default = #{isDefault},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="aiSummary != null">ai_summary = #{aiSummary},</if>
+            updated_at = NOW()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 物理删除简历 -->
+    <delete id="deleteById">
+        delete from resume where id = #{id}
+    </delete>
+
+</mapper>

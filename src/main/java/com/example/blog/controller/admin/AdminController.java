@@ -89,9 +89,8 @@ public class AdminController {
     public Result getInfo(){
         log.info("获取用户信息");
         Admin admin = adminService.getById();
-        SelectDto selectDto = modelMapper.map(admin,SelectDto.class);
-
-        return Result.success("获取成功",selectDto);
+        SelectDto selectDto = modelMapper.map(admin,SelectDto.class);//使用modelmapper映射，映射实体类到dto
+        return Result.success("获取成功",selectDto);//修改为vo
     }
 
     @PostMapping("/UpdatePassword")

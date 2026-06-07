@@ -24,7 +24,12 @@ public class ServiceAop {
      * */
     @Autowired
     private AopStorage aopStorage;
-    @Pointcut("execution(* com.example.blog.service.impl.*.*(..)) && !target(com.example.blog.service.impl.AopStorageImpl)")
+    /**
+     * 切点：排除 AopStorageImpl（自身）和 PdfExportService（参数含 HttpServletResponse，无法 JSON 序列化）
+     */
+    @Pointcut("execution(* com.example.blog.service.impl.*.*(..)) " +
+              "&& !target(com.example.blog.service.impl.AopStorageImpl) " +
+              "&& !target(com.example.blog.service.impl.PdfExportService)")
     public void ServiceAop(){}
 
     @Around("ServiceAop()")
@@ -46,7 +51,13 @@ public class ServiceAop {
         aop.setCostTime(System.currentTimeMillis() - start);
         aop.setDescription(fullMethodName);
         aop.setUserId(BaseContext.getCurrentId());
-        String params = JSON.toJSONString( args);
+        String params;
+        try {
+            params = JSON.toJSONString(args);
+        } catch (Exception e) {
+            params = "[序列化参数失败: " + e.getMessage() + "]";
+            log.warn("AOP参数序列化失败, className={}, methodName={}", className, methodName, e);
+        }
         aop.setParams(params);
         //初始化执行方法
         Object result = null;

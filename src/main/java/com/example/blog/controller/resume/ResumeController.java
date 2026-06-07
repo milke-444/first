@@ -5,9 +5,13 @@ import com.example.blog.common.result.Result;
 import com.example.blog.entity.Resume;
 import com.example.blog.model.dto.resume.*;
 import com.example.blog.service.ResumeService;
+import com.example.blog.service.impl.PdfExportService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * 简历管理控制器
@@ -28,6 +32,9 @@ public class ResumeController {
     @Autowired
     private ResumeService resumeService;
 
+    @Autowired
+    private PdfExportService pdfExportService;
+
     /** 创建新简历 */
     @PostMapping("/resumes")
     public Result createResume(@Valid @RequestBody CreateResumeDto dto) {
@@ -35,11 +42,42 @@ public class ResumeController {
         return Result.success("创建简历成功", resume);
     }
 
-    /** 获取简历详情（含所有模块和条目） */
+    /** 获取简历基本信息 */
     @GetMapping("/resumes/{resumeId}")
+    public Result getResume(@PathVariable Long resumeId) {
+        Resume resume = resumeService.getResumeDetail(resumeId);
+        return Result.success(resume);
+    }
+
+    /** 获取简历完整详情（含所有模块和条目，按 sort_order 升序） */
+    @GetMapping("/resumes/{resumeId}/detail")
     public Result getResumeDetail(@PathVariable Long resumeId) {
         Resume resume = resumeService.getResumeDetail(resumeId);
-        return Result.success("创建成功",resume);
+        return Result.success(resume);
+    }
+
+    /**
+     * 导出简历为 PDF 文件，触发浏览器下载。
+     *
+     * ★ 为什么返回 void 而不是 Result？
+     *   因为 PDF 是二进制文件，需要直接写入 HttpServletResponse 的输出流，
+     *   而不是由 Spring 序列化为 JSON。返回 void 告诉 Spring：这个方法自己处理响应。
+     *
+     * ★ 为什么可以返回 void？
+     *   因为 @RestController 默认会给所有方法加上 @ResponseBody，
+     *   但对于返回 void 且参数中包含 HttpServletResponse 的方法，
+     *   Spring MVC 会检测到响应已经被方法处理，不再尝试序列化返回值。
+     *
+     * 下载流程：
+     *   1. 浏览器访问 GET /api/v1/resumes/{resumeId}/export/pdf
+     *   2. PdfExportService.exportPdf() 调用 resumeService.getResumeDetail(resumeId) 获取数据
+     *   3. 用 PDFBox 生成 PDF 到 ByteArrayOutputStream（内存）
+     *   4. 设置 Content-Type: application/pdf，Content-Disposition: attachment
+     *   5. 将 PDF 字节写入 response.getOutputStream()
+     */
+    @GetMapping("/resumes/{resumeId}/export/pdf")
+    public void exportPdf(@PathVariable Long resumeId, HttpServletResponse response) throws IOException {
+        pdfExportService.exportPdf(resumeId, response);
     }
 
     /** 更新简历基本信息 */

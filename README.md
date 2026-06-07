@@ -10,8 +10,8 @@
 | 后端 | Spring Boot 3、MyBatis、MySQL、Redis、Lua |
 | 前端 | Vue 3、Element Plus |
 | AI | DeepSeek（Spring AI 集成） |
-| 安全 | Sa-Token、JWT、BCrypt |
-| 工具 | Docker、Git、Apifox |
+| 安全 |JWT|
+| 工具 |Git、Apifox |
 
 ## 快速开始
 
@@ -22,15 +22,9 @@ cd first
 
 # 2. 配置环境变量（复制 .env.example 为 .env，填入你的密钥）
 cp .env.example .env
-
-# 3. 启动 MySQL 和 Redis（Docker 方式）
-docker-compose up -d mysql redis
-
-# 4. 启动项目
-./mvnw spring-boot:run
 ```
 
-访问 `http://localhost:8080/doc.html` 查看 API 文档。
+访问 `http://localhost:8080/doc.html` 查看 API 文档。(未完善实现)
 
 ## 核心功能
 
@@ -57,13 +51,13 @@ docker-compose up -d mysql redis
 
 ### 3. 内容分类体系
 
-支持四种内容类型：博客文章（BLOG）、学习笔记（NOTE）、算法刷题（ALGORITHM）、面经复盘（INTERVIEW），可按类型筛选和标签检索。
+支持两种内容类型：博客文章（BLOG）、学习笔记（NOTE）、简历生成，可按类型筛选和标签检索。
 
-### 4. AI 英语句子分析
+### 4. AI 英语句子分析（待完善）
 
 集成 DeepSeek，输入英语长难句，自动分析主谓宾定状补，辅助四级备考。
 
-### 5. 简历生成（开发中）
+### 5. 简历生成（待优化）
 
 用户可以自由组织简历模块（教育背景、项目经历、荣誉奖项等），条目内容通过 JSON 动态存储，支持模板切换和 PDF 导出。
 
@@ -111,5 +105,3 @@ http://localhost:8080/doc.html
 
 
 
-
-这份 README 可以直接替换你现在的版本，面试官打开 GitHub 仓库时能快速理解项目价值和你的技术深度。

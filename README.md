@@ -92,7 +92,7 @@ http://localhost:8080/doc.html
 
 项目开发过程中的技术沉淀，存放在 `docs/` 目录：
 
-- [B+Tree 索引原理与最左前缀原则](docs/b-plus-tree-index.md)
+- [B+Tree 索引原理与最左前缀原则](docs/docs/B+Tree.md)
 - [Redis 底层数据结构：SDS、ziplist、skiplist](docs/redis-data-structures.md)
 - [Lua 脚本与原子性：点赞功能并发优化](docs/like-concurrency-optimization.md)
 - [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)

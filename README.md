@@ -42,7 +42,7 @@ docker-compose up -d mysql redis
 
 **效果**：单用户 100 线程并发测试数据一致，Redis 请求从 3 次降为 1 次。
 
-> 详见 [点赞功能并发优化记录](docs/like-concurrency-optimization.md)
+> 详见 [点赞功能并发优化记录](docs/docs/解决点赞并发以及分析.md)
 
 ### 2. 热度排行榜（多级缓存 + N+1 优化）
 
@@ -92,9 +92,9 @@ http://localhost:8080/doc.html
 
 项目开发过程中的技术沉淀，存放在 `docs/` 目录：
 
-- [B+Tree 索引原理与最左前缀原则](docs/b-plus-tree-index.md)
-- [Redis 底层数据结构：SDS、ziplist、skiplist](docs/redis-data-structures.md)
-- [Lua 脚本与原子性：点赞功能并发优化](docs/like-concurrency-optimization.md)
+- [B+Tree 索引原理与最左前缀原则](docs/docs/B+Tree.md)
+- [Redis 底层数据结构：SDS、ziplist、skiplist](docs/docs/redis-string.md)
+- [Lua 脚本简单理解](docs/docs/lua脚本.md)
 - [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)
 - [MySQL JSON 字段使用实践](docs/mysql-json-field.md)
 
@@ -109,24 +109,7 @@ http://localhost:8080/doc.html
 | 阶段五 | Docker 容器化部署 | 📅 计划中 |
 | 阶段六 | 单元测试与压力测试 | 📅 计划中 |
 
-## 许可证
 
-MIT License
-```
 
----
-
-### 📊 和原版的对比
-
-| 维度 | 原版 | 优化版 |
-| :--- | :--- | :--- |
-| 项目简介 | 无，直接进入技术细节 | 开头一句话概括项目定位 |
-| 快速开始 | 无 | 有，面试官可以自己跑起来 |
-| 技术栈 | 散落在各处 | 集中展示，一目了然 |
-| 核心功能 | 只有点赞和排行榜 | 点赞、排行榜、分类、AI分析、简历生成 |
-| 工程规范 | 无 | 单独列出，体现专业度 |
-| 学习笔记 | 无 | 列出 docs/ 目录，展示持续学习 |
-| 项目优化历程 | 无 | 阶段式展示，证明迭代能力 |
-| 可读性 | 技术笔记风格 | 标准 README 结构 |
 
 这份 README 可以直接替换你现在的版本，面试官打开 GitHub 仓库时能快速理解项目价值和你的技术深度。

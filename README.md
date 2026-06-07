@@ -42,7 +42,7 @@ docker-compose up -d mysql redis
 
 **效果**：单用户 100 线程并发测试数据一致，Redis 请求从 3 次降为 1 次。
 
-> 详见 [点赞功能并发优化记录](docs/like-concurrency-optimization.md)
+> 详见 [点赞功能并发优化记录](docs/)
 
 ### 2. 热度排行榜（多级缓存 + N+1 优化）
 

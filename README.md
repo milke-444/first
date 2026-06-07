@@ -42,7 +42,7 @@ docker-compose up -d mysql redis
 
 **效果**：单用户 100 线程并发测试数据一致，Redis 请求从 3 次降为 1 次。
 
-> 详见 [点赞功能并发优化记录](docs/)
+> 详见 [点赞功能并发优化记录](docs/docs/解决点赞并发以及分析.md)
 
 ### 2. 热度排行榜（多级缓存 + N+1 优化）
 
@@ -92,9 +92,9 @@ http://localhost:8080/doc.html
 
 项目开发过程中的技术沉淀，存放在 `docs/` 目录：
 
-- [B+Tree 索引原理与最左前缀原则](docs/docs/B+Tree)
-- [Redis 底层数据结构：SDS、ziplist、skiplist](docs/redis-data-structures.md)
-- [Lua 脚本与原子性：点赞功能并发优化](docs/like-concurrency-optimization.md)
+- [B+Tree 索引原理与最左前缀原则](docs/docs/B+Tree.md)
+- [Redis 底层数据结构：SDS、ziplist、skiplist](docs/docs/redis-string.md)
+- [Lua 脚本简单理解](docs/docs/lua脚本.md)
 - [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)
 - [MySQL JSON 字段使用实践](docs/mysql-json-field.md)
 

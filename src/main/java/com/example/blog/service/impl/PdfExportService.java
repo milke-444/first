@@ -51,26 +51,26 @@ public class PdfExportService {
 
     /* ======================== 排版常量 ======================== */
 
-    // 页边距（A4 四边统一留白 50pt）
-    private static final float MARGIN = 50;
+    // 页边距（缩小上边距以容纳更多内容）
+    private static final float MARGIN = 40;
 
     // A4 纸张尺寸（PDFBox 标准定义）
     private static final float PAGE_W = PDRectangle.A4.getWidth();   // 595.27 pt
     private static final float PAGE_H = PDRectangle.A4.getHeight();  // 841.9  pt
 
     // 可用宽度 = 纸张宽度 - 左右边距
-    private static final float AVAIL_W = PAGE_W - 2 * MARGIN;       // 495.27 pt
+    private static final float AVAIL_W = PAGE_W - 2 * MARGIN;       // 515.27 pt
 
-    // 右侧安全边距 —— 防止 getStringWidth() 与 showText() 实际渲染宽度的差异导致溢出
+    // 右侧安全边距
     private static final float RIGHT_PADDING = 80;
 
-    // 字号
+    // 字号（缩小字号适配一页）
     private static final float TITLE_SIZE   = 22;  // 简历大标题
-    private static final float SECTION_SIZE = 16;  // 模块标题（加粗，比条目大）
-    private static final float ITEM_SIZE    = 13;  // 条目内容（稍大，便于阅读）
+    private static final float SECTION_SIZE = 13;  // 模块标题
+    private static final float ITEM_SIZE    = 11;  // 条目内容
 
-    // 行高（相邻两行基线的间距）
-    private static final float LEADING = 22;
+    // 行高（缩小行距使排版更紧凑）
+    private static final float LEADING = 16;
 
     private static final Logger log = LoggerFactory.getLogger(PdfExportService.class);
 
@@ -258,11 +258,13 @@ public class PdfExportService {
             return PDType1Font.HELVETICA;
         }
 
-        // 按优先级从高到低排列字体候选
+        // 按优先级从高到低排列字体候选（优先使用 TTF，避免 TTC 兼容问题）
         String[] candidates = {
-            "C:\\Windows\\Fonts\\msyh.ttf",      // 微软雅黑（TTF，推荐）
-            "C:\\Windows\\Fonts\\simsun.ttc",     // 宋体（TTC，备选）
-            "C:\\Windows\\Fonts\\simfang.ttf"     // 仿宋（TTF，兜底）
+            "C:\\Windows\\Fonts\\msyh.ttf",      // 微软雅黑（TTF）
+            "C:\\Windows\\Fonts\\msyhbd.ttf",     // 微软雅黑粗体
+            "C:\\Windows\\Fonts\\simfang.ttf",    // 仿宋（TTF）
+            "C:\\Windows\\Fonts\\msyhl.ttf",      // 微软雅黑细体
+            "C:\\Windows\\Fonts\\simsun.ttc",     // 宋体（TTC，兜底，部分 PDFBox 版本不支持）
         };
 
         for (String path : candidates) {
@@ -305,8 +307,8 @@ public class PdfExportService {
      */
     private void drawSection(RenderState st, ResumeSection section) throws IOException {
         // ★ 在 beginText() 之前检查空间，避免在文本块中分页
-        ensureSpace(st, SECTION_SIZE + 50);
-        st.y -= 25;  // 模块与上一内容的间距
+        ensureSpace(st, SECTION_SIZE + 40);
+        st.y -= 18;  // 模块与上一内容的间距（紧凑）
 
         // 输出模块标题（使用粗体 + 分隔横线）
         PDFont sectionFont = st.boldFont != null ? st.boldFont : st.font;
@@ -327,8 +329,8 @@ public class PdfExportService {
         st.cs.moveTo(MARGIN, st.y);          // 起点：左边距
         st.cs.lineTo(PAGE_W - MARGIN, st.y); // 终点：右边距
         st.cs.stroke();                      // 执行绘制
-        // 横线与第一条目的间距
-        st.y -= 15;
+        // 横线与第一条目的间距（紧凑）
+        st.y -= 8;
 
         // 恢复正文字体，后续条目内容使用普通字重
         st.cs.setFont(st.font, ITEM_SIZE);
@@ -344,67 +346,71 @@ public class PdfExportService {
     /**
      * 绘制一个条目。
      *
-     * 流程：
-     *   1. 解析 item.content 的 JSON 字符串为 Map
-     *   2. 根据模块类型从 Map 中提取字段，拼接成可读文本
-     *   3. 估算文本需要的高度，调用 ensureSpace() 预留空间
-     *   4. 用 drawText() 输出文本（如果条目有 description 字段，额外多输出一行）
-     *
-     * ★ 内容格式对照表：
-     *   EDUCATION → school | major | period
-     *   WORK      → company | position | period （description 另起一行，缩进更多）
-     *   PROJECT   → name | role | tech         （description 另起一行，缩进更多）
-     *   SKILL     → 技能1、技能2、技能3
-     *   OBJECT    → text（用户自由输入）
+     * ★ 通用 title + description 格式：
+     *   title（加粗，主文字）→ 如 "清华大学 | 计算机"
+     *   description（正常，详情）→ 如 "2020-2024，学习了..."
+     *   所有模块类型统一使用此格式，不再按类型区分字段。
      */
     private void drawItem(RenderState st, ResumeItem item, String type) throws IOException {
-        // 第一步：解析 JSON，提取文本
-        String text = "";
+        String title = "";
         String desc = "";
         try {
-            // Jackson 自动将 JSON 字符串转为 Map<String, Object>
             Map<String, Object> map = MAPPER.readValue(item.getContent(), Map.class);
-            switch (type) {
-                case "EDUCATION":
-                    text = join(map, "school", "major", "period");
-                    break;
-                case "WORK":
-                    text = join(map, "company", "position", "period");
-                    desc = str(map.get("description"));
-                    break;
-                case "PROJECT":
-                    text = join(map, "name", "role", "tech");
-                    desc = str(map.get("description"));
-                    break;
-                case "SKILL":
-                    Object skills = map.get("skills");
-                    if (skills instanceof List) {
-                        text = String.join("、", (List<String>) skills);
-                    }
-                    break;
-                case "OBJECT":
-                    text = str(map.get("text"));
-                    break;
+            title = str(map.get("title"));
+            desc = str(map.get("description"));
+            // 兼容旧格式：没有 title/description 时从旧字段映射
+            if (title.isEmpty() && desc.isEmpty()) {
+                switch (type) {
+                    case "EDUCATION":
+                        title = joinFields(map, "school", "major", "period");
+                        break;
+                    case "WORK":
+                        title = joinFields(map, "company", "position", "period");
+                        desc = str(map.get("description"));
+                        break;
+                    case "PROJECT":
+                        title = joinFields(map, "name", "role", "tech");
+                        desc = str(map.get("description"));
+                        break;
+                    case "SKILL":
+                        Object skills = map.get("skills");
+                        if (skills instanceof List) {
+                            title = String.join("、", (List<String>) skills);
+                        }
+                        break;
+                    case "OBJECT":
+                        title = str(map.get("text"));
+                        break;
+                }
             }
         } catch (Exception e) {
-            // JSON 解析失败时，直接把原始内容作为文本（兜底）
-            text = item.getContent();
+            String t = item.getContent();
+            if (t != null && !t.trim().isEmpty()) title = t;
         }
 
-        // 第二步：估算高度，然后分页（与下方实际绘制间距保持一致）
-        float needed = 4 + countLines(st.font, text) * LEADING;
-        if (!desc.isEmpty()) {
-            needed += 1 + countLines(st.font, desc) * LEADING;
+        // 估算纵向总高度
+        float needed = 0;
+        if (!title.isEmpty()) {
+            needed += 2 + countLines(st.font, title) * LEADING;
         }
+        if (!desc.isEmpty()) {
+            needed += 2 + countLines(st.font, desc) * LEADING;  // desc 也有独立间距
+        }
+        if (needed <= 0) return;
         ensureSpace(st, needed);
 
-        // 第三步：绘制文本（紧凑间距）
-        st.y -= 4;  // 条目间距
-        drawText(st, text, ITEM_SIZE, 15);
+        // title 加粗绘制
+        if (!title.isEmpty()) {
+            st.y -= 2;
+            PDFont titleFont = st.boldFont != null ? st.boldFont : st.font;
+            st.cs.setFont(titleFont, ITEM_SIZE);
+            drawText(st, title, ITEM_SIZE, 15);
+            st.cs.setFont(st.font, ITEM_SIZE);  // 恢复常规字体
+        }
+        // description 正常字体绘制
         if (!desc.isEmpty()) {
-            st.y -= 1;  // 描述与主文本的间距
-            st.cs.setFont(st.font, ITEM_SIZE);
-            drawText(st, desc, ITEM_SIZE, 25);
+            st.y -= 2;
+            drawText(st, desc, ITEM_SIZE, 25);  // 缩进更多，区分层次
         }
     }
 
@@ -415,6 +421,9 @@ public class PdfExportService {
      *   不在这里调用 ensureSpace()，确保文本块的完整性。
      */
     private void drawText(RenderState st, String text, float size, float indent) throws IOException {
+        // ★ 空文本跳过绘制
+        if (text == null || text.trim().isEmpty()) return;
+
         // ★ 计算安全宽度：预留 3pt 右侧边距，最大限度利用页面宽度
         float safeMaxW = AVAIL_W - indent - 3;
         List<String> lines = wrapText(st.font, text, size, safeMaxW);
@@ -502,8 +511,8 @@ public class PdfExportService {
      * 最少返回 1（即使文本为空），避免 needed = 0 导致 ensureSpace 失效。
      */
     private int countLines(PDFont font, String text) throws IOException {
-        // ★ 与 drawText 使用相同的宽度计算（indent=15），确保估算高度与实际一致
-        return Math.max(wrapText(font, text, ITEM_SIZE, AVAIL_W - 15 - 3).size(), 1);
+        // ★ 与 drawText 使用相同的宽度计算，确保估算高度与实际一致
+        return Math.max(wrapText(font, text, ITEM_SIZE, AVAIL_W - 15 - 8).size(), 1);
     }
 
     /**
@@ -562,21 +571,20 @@ public class PdfExportService {
      * ============================================================ */
 
     /**
-     * 从 Map 中提取多个字段值，用 " | " 连接。
-     * 跳过空值字段，避免出现 "清华大学 |  | 2020-2024" 这样的尴尬显示。
-     */
-    private static String join(Map<String, Object> map, String... keys) {
+     * 安全获取字符串，null 转为空字符串并去空格。 */
+    private static String joinFields(Map<String, Object> map, String... keys) {
         List<String> parts = new ArrayList<>();
         for (String k : keys) {
             String v = str(map.get(k));
             if (!v.isEmpty()) parts.add(v);
         }
-        return String.join(" | ", parts);
+        return String.join(" · ", parts);
     }
 
-    /** 安全获取字符串，null 转为空字符串并去空格。 */
     private static String str(Object o) {
-        return o == null ? "" : o.toString().trim();
+        if (o == null) return "";
+        String s = o.toString().trim();
+        return s.isEmpty() || "null".equalsIgnoreCase(s) ? "" : s;
     }
 
     /** 将 sectionType 转为中文显示名。OBJECT 类型的模块使用 customLabel 字段。 */

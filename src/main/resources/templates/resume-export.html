@@ -1,0 +1,102 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style type="text/css">
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: SimSun, serif;
+            font-size: 10pt;
+            color: #1a1a1a;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .resume-name {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 16pt;
+            letter-spacing: 2pt;
+        }
+
+        .section {
+            margin-bottom: 10pt;
+        }
+
+        .section-title {
+            font-size: 12pt;
+            font-weight: bold;
+            padding-bottom: 4pt;
+            border-bottom: 1px solid #000000;
+            margin-bottom: 6pt;
+        }
+
+        .item {
+            margin-bottom: 4pt;
+            padding-left: 10pt;
+        }
+
+        .item-title {
+            font-weight: bold;
+            font-size: 10pt;
+        }
+
+        .item-detail {
+            font-size: 10pt;
+            color: #333333;
+            margin-top: 1pt;
+            white-space: pre-wrap;
+        }
+
+        .skill-tags {
+            padding-left: 10pt;
+        }
+
+        .skill-tag {
+            display: inline;
+            font-size: 10pt;
+        }
+
+        .empty-hint {
+            color: #c0c4cc;
+            padding-left: 10pt;
+            font-size: 10pt;
+        }
+
+        .item-summary {
+            font-size: 10pt;
+            margin-bottom: 1pt;
+        }
+    </style>
+</head>
+<body>
+
+<div class="resume-name" th:text="${resume.name}">简历名称</div>
+
+<div th:each="section : ${sections}" class="section">
+
+    <div class="section-title" th:text="${section.label}">模块标题</div>
+
+    <!-- 没有条目时的提示 -->
+    <div th:if="${#lists.isEmpty(section.items)}" class="empty-hint">暂无条目</div>
+
+    <!-- 遍历条目 -->
+    <div th:each="item : ${section.items}" class="item">
+
+        <!-- 通用 title（加粗）+ description（正常）格式 -->
+        <div class="item-title" th:if="${item.title}" th:text="${item.title}">标题</div>
+        <div class="item-detail" th:if="${item.description}" th:text="${item.description}">描述</div>
+
+    </div>
+</div>
+
+</body>
+</html>

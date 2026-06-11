@@ -6,12 +6,17 @@ import com.example.blog.entity.Resume;
 import com.example.blog.model.dto.resume.*;
 import com.example.blog.service.ResumeService;
 import com.example.blog.service.impl.PdfExportService;
+import com.example.blog.service.impl.HtmlToPdfService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 简历管理控制器
@@ -34,6 +39,9 @@ public class ResumeController {
 
     @Autowired
     private PdfExportService pdfExportService;
+
+    @Autowired
+    private HtmlToPdfService htmlToPdfService;
 
     /** 创建新简历 */
     @PostMapping("/resumes")
@@ -78,6 +86,31 @@ public class ResumeController {
     @GetMapping("/resumes/{resumeId}/export/pdf")
     public void exportPdf(@PathVariable Long resumeId, HttpServletResponse response) throws IOException {
         pdfExportService.exportPdf(resumeId, response);
+    }
+
+    /** 使用 Thymeleaf + Flying Saucer 导出简历为 PDF（HTML 渲染，排版更精准） */
+    @GetMapping("/resumes/{resumeId}/export/pdf/html")
+    public void exportPdfHtml(@PathVariable Long resumeId, HttpServletResponse response) throws IOException {
+        try {
+            ByteArrayOutputStream baos = htmlToPdfService.exportPdf(resumeId);
+            byte[] pdfData = baos.toByteArray();
+
+            Resume resume = resumeService.getResumeDetail(resumeId);
+            String safeName = resume.getName().replaceAll("[\\\\/:*?\"<>|]", "_");
+            String encoded = URLEncoder.encode(safeName + ".pdf", StandardCharsets.UTF_8)
+                    .replace("+", "%20");
+            response.setContentType("application/pdf");
+            response.setContentLength(pdfData.length);
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=\"resume.pdf\"; filename*=UTF-8''" + encoded);
+
+            try (OutputStream os = response.getOutputStream()) {
+                os.write(pdfData);
+                os.flush();
+            }
+        } catch (Exception e) {
+            throw new IOException("HTML PDF 生成失败", e);
+        }
     }
 
     /** 更新简历基本信息 */

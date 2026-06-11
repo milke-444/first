@@ -15,12 +15,18 @@ public class WebConfig implements WebMvcConfigurer {
     private JwtInterceptor jwtInterceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        log.info("注册JWT拦截器，排除路径: /admin/login, /admin/register");
+        log.info("注册JWT拦截器");
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/admin/login",
-                        "/admin/register"
+                        "/admin/register",
+                        // Knife4j 接口文档放行
+                        "/doc.html",
+                        "/webjars/**",
+                        "/v3/**",
+                        "/swagger-resources/**",
+                        "/favicon.ico"
                 );
 
 

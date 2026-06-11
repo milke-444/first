@@ -89,8 +89,8 @@ http://localhost:8080/doc.html
 - [B+Tree 索引原理与最左前缀原则](docs/docs/B+Tree.md)
 - [Redis 底层数据结构：SDS、ziplist、skiplist](docs/docs/redis-string.md)
 - [Lua 脚本简单理解](docs/docs/lua脚本.md)
-- [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)
-- [MySQL JSON 字段使用实践](docs/mysql-json-field.md)
+- [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)(未完善)
+- [MySQL JSON 字段使用实践](docs/mysql-json-field.md)(未完善)
 
 ## 项目优化历程
 
@@ -98,10 +98,11 @@ http://localhost:8080/doc.html
 | :--- | :--- | :--- |
 | 阶段一 | 结构工程化（包名规范、统一返回、异常处理、ThreadLocal 清理） | ✅ 完成 |
 | 阶段二 | 内容分类体系搭建（文章类型标签、分类筛选） | ✅ 完成 |
-| 阶段三 | AI 功能集成（DeepSeek 英语句子分析） | ✅ 完成 |
-| 阶段四 | 个人工作台功能 | 🚧 进行中 |
-| 阶段五 | Docker 容器化部署 | 📅 计划中 |
-| 阶段六 | 单元测试与压力测试 | 📅 计划中 |
+| 阶段三 | 简历生成和pdf导出 | ✅ 初步完成,优化简历样式,嵌入ai辅助完善 |
+| 阶段四 | AI 功能集成（DeepSeek 英语句子分析） |🚧 进行中  |
+| 阶段五 | 个人工作台功能 | 🚧 进行中 |
+| 阶段六 | Docker 容器化部署 | 📅 计划中 |
+| 阶段七 | 单元测试与压力测试 | 📅 计划中 | 
 
 
 

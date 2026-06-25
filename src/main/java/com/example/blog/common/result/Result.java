@@ -16,9 +16,7 @@ import lombok.Getter;  // 用于生成属性的Getter方法
  * 通过状态码和消息来表示操作的结果，并可携带响应数据
  */
 // @Builder：使用lombok生成一个私有的构造器，方便创建Result对象
-@Builder(access = AccessLevel.PRIVATE)
 // @Getter：使用lombok为类的所有字段生成Getter方法
-@Getter
 public class Result {
 
 
@@ -39,6 +37,44 @@ public class Result {
     // 请求成功，默认消息为“操作成功”
     public static Result success(Object data) {
         return success(ResultConstant.DEFAULT_SUCCESS_MESSAGE, data);
+    }
+
+    // 私有构造器，只供 Builder 使用
+    private Result(Builder builder) {
+        this.code = builder.code;
+        this.message = builder.message;
+        this.data = builder.data;
+    }
+
+    // 静态 builder() 方法
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    // 内部 Builder 类
+    public static class Builder {
+        private Integer code;
+        private String message;
+        private Object data;
+
+        public Builder code(Integer code) {
+            this.code = code;
+            return this;
+        }
+
+        public Builder message(String message) {
+            this.message = message;
+            return this;
+        }
+
+        public Builder data(Object data) {
+            this.data = data;
+            return this;
+        }
+
+        public Result build() {
+            return new Result(this);
+        }
     }
     // 请求成功，返回一个成功的Result对象，指定自定义消息和响应数据
     public static Result success(String message, Object data) {
@@ -85,5 +121,15 @@ public class Result {
      * 资源进行操作。RESTful API设计的目标是使Web服务更加简单、可扩展和易于理解。
      *
      */
+    public Integer getCode() {
+        return code;
+    }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public Object getData() {
+        return data;
+    }
 }

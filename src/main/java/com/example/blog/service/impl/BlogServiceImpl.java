@@ -350,20 +350,20 @@ public class BlogServiceImpl implements BlogService {
 
             rankingList.add(item);
         }
-
-        log.info("排行榜查询完成 - 使用Redis缓存优化版本，缓存命中率: {}/{}", 
-                blogIds.size() - missingBlogIds.size(), blogIds.size());
+//
+//        log.info("排行榜查询完成 - 使用Redis缓存优化版本，缓存命中率: {}/{}",
+//                blogIds.size() - missingBlogIds.size(), blogIds.size());
 
         return Result.success(rankingList);
     }
 
     @Scheduled(fixedDelay = 60000)//间隔1分钟执行一次
     public void chunmysql(){
-        log.info("开始执行定时任务");
+//        log.info("开始执行定时任务");
 
       Set<String> keys = stringRedisTemplate.keys("like*");//获取所有以like开头的key
         if (keys == null || keys.isEmpty()) {
-            log.info("没有需要同步的数据");
+//            log.info("没有需要同步的数据");
             blogMapper.updateLikeCountNull();//因为我的项目不会清空redis的缓存，如果清空这个方法会导致点赞数丢失，后续优化
             return;
         }
@@ -372,15 +372,15 @@ public class BlogServiceImpl implements BlogService {
             Long likeCount = stringRedisTemplate.opsForSet().size(key);
 
 
-            log.info("博客ID：{}，点赞数：{}",blogId);
+//            log.info("博客ID：{}，点赞数：{}",blogId);
             if (blogId != null) {
-                log.info("同步博客{}点赞数：{}", blogId);
+//                log.info("同步博客{}点赞数：{}", blogId);
                 blogMapper.updateLikeCount(blogId, likeCount);
 
             }
 
         }
-        log.info("定时任务结束");
+//        log.info("定时任务结束");
 
     }
 

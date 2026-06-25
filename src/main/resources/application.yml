@@ -17,13 +17,9 @@ spring:
   config:
     import: optional:file:.env[.properties]  # 这行是核心，告诉 Spring 去读 .env
 
-
-  ai:
-    deepseek:
-      api-key: ${DEEPSEEK_API_KEY}  # API 密钥
-      base-url: https://api.deepseek.com  # API 地址（默认就是这个）
-      model: deepseek-chat  # 模型名称
-
+  mvc:
+    async:
+      request-timeout: 120000   #
 # 线程池配置
 thread:
   pool:
@@ -48,3 +44,34 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: true
+
+langchain4j:
+  open-ai:
+    chat-model:
+      # 智谱 AI 的 OpenAI 兼容 API 地址
+      base-url: https://open.bigmodel.cn/api/paas/v4
+      # 你的智谱 API Key（替换成你自己的）
+      api-key: ${ZHIPU_API_KEY}
+      # 模型名称：GLM-5.1（你想用哪个就写哪个）
+      model-name: GLM-4.7
+      # 可选参数
+      temperature: 0.4       # 0-2，越大回答越随机
+      max-tokens: 512       # 最大输出 token 数
+      top-p: 0.9             # 核采样参数
+      log-requests: false    # 调试时可改为 true 看请求日志
+      log-responses: false   # 调试时可改为 true 看响应日志
+
+    embedding-model:
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      api-key: ${ENABLE_MODLE_API_KEY}
+      model-name: text-embedding-v3
+
+    streaming-chat-model:
+      base-url: https://open.bigmodel.cn/api/paas/v4   # 必须显式指定
+      model-name:  GLM-4.6V
+      api-key: ${ZHIPU_API_KEY}
+      temperature: 0.4
+      max-tokens: 3000
+      top-p: 0.9
+      log-requests: true
+      log-responses: true

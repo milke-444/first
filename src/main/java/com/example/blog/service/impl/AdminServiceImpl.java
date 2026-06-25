@@ -41,7 +41,7 @@ public class AdminServiceImpl implements AdminService {
         String adminAccount = loginDto.getAdminAccount();
         Admin loginadmin =  adminMapper.adminlogin(adminAccount, adminPassword);
         if (loginadmin == null) {
-            log.warn("登录失败，账号或密码错误: {}", adminAccount);
+//            log.warn("登录失败，账号或密码错误: {}", adminAccount);
             throw new UserException(ExceptionCommon.USER_NOT_EXIST);
         }//查询用户
         //设置key,使用简短的key可以减少内存的消耗
@@ -71,7 +71,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void adminRegister(ResigerDto admin) {
         if (admin ==  null){
-            log.info("用户不能为空");
+//            log.info("用户不能为空");
             throw new UserException(ExceptionCommon.PARAM_ERROR);//这段异常信息只有后端才能看见，使用异常处理的原因是为了让这个异常可以别用户正确看到
         }
 
@@ -88,7 +88,7 @@ public class AdminServiceImpl implements AdminService {
         //TODO:后面改进使用aop来获取id，不用每次都获取id，但是目前没有使用aop，所以还是使用这个方法，但是这个方法有漏洞，如果用户id被修改，那么就会出错，所以这个方法要加上权限控制，但是权限控制要加上aop，所以这个方法要加上权限控制，但是权限控制要加上aop，所以这个方法要加上权限控制，但是权限控制要加上aop，所以这个方法要加上权限控制
         Integer currentId = BaseContext.getCurrentId();
         if ( currentId == null){
-            log.info("查询用户失败,请重新登录");
+//            log.info("查询用户失败,请重新登录");
             throw new RuntimeException("查询用户失败,请重新登录");
 
         }
@@ -125,7 +125,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Admin updatePassword(String newPassword, String oldPassword) {
         if (BaseContext.getCurrentId() == null){
-            log.info("修改密码失败,请重新登录");
+//            log.info("修改密码失败,请重新登录");
             throw new UserException("修改密码失败,请重新登录",400);
         }
         Integer adminId = Math.toIntExact(BaseContext.getCurrentId());
@@ -133,17 +133,17 @@ public class AdminServiceImpl implements AdminService {
         String md5oldPassword = DigestUtils.md5DigestAsHex(oldPassword.getBytes()).toUpperCase();
         String selectpassword = adminMapper.selectPassword(Math.toIntExact(adminId));
         if (!md5oldPassword.equals(selectpassword)){
-            log.info("修改密码失败,请重新输入原密码");
+//            log.info("修改密码失败,请重新输入原密码");
             throw new UserException("修改密码失败,请重新输入原密码",400);
 
         }
         if (md5newPassword.equals(md5oldPassword)){
-            log.info("修改密码失败,请重新输入新密码");
+//            log.info("修改密码失败,请重新输入新密码");
             throw new UserException("修改密码失败,新旧密码不能相同",400);
 
         }
         adminMapper.updatePassword( adminId,md5newPassword);
-        log.info("修改密码成功");
+//        log.info("修改密码成功");
         return adminMapper.getById(adminId);
 
 
@@ -153,17 +153,17 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Admin updateName(Integer currentId, String newName, String oldName) {
         if (BaseContext.getCurrentId() == null){
-            log.info("修改名称失败,请重新登录");
+//            log.info("修改名称失败,请重新登录");
             throw new UserException("修改名称失败,请重新登录",400);
 
         }
         if (newName.equals(oldName)){
-            log.info("修改名称失败,请重新输入名称");
+//            log.info("修改名称失败,请重新输入名称");
             throw new UserException("修改名称失败，新名称不能等于旧名称",400);
 
         }
         adminMapper.updateName(currentId,newName);
-        log.info("修改名称成功");
+//        log.info("修改名称成功");
         String key = "admin:" + currentId;//拼接生成key值，更好区分
         redisUtil.delete(key);
         return adminMapper.getById(currentId);

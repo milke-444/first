@@ -72,9 +72,9 @@ public class AdminController {
 
     @PostMapping("/register")
     public Result register(@Valid @RequestBody ResigerDto admin ){
-        log.info("用户注册:{}", admin);
+//        log.info("用户注册:{}", admin);
         if (admin ==  null){
-            log.info("用户不能为空");
+//            log.info("用户不能为空");
             return Result.failure("用户不能为空");
 
         }
@@ -87,7 +87,7 @@ public class AdminController {
 //TODO 登录后通过解析jwt来获取id然后进行各种操作，使用解析可以避免直接获取id，防止用户直接通过url进行操作，通过dto来获取数据，不用修改实体类
     @GetMapping("/getInfo")
     public Result getInfo(){
-        log.info("获取用户信息");
+//        log.info("获取用户信息");
         Admin admin = adminService.getById();
         SelectDto selectDto = modelMapper.map(admin,SelectDto.class);//使用modelmapper映射，映射实体类到dto
         return Result.success("获取成功",selectDto);//修改为vo
@@ -116,7 +116,7 @@ public class AdminController {
 
     @PostMapping("/updateName")
     public Result updateName(@Valid @RequestBody UpdateNameDto updateNameDto){
-        log.info("修改用户名");
+//        log.info("修改用户名");
       Admin adminuopdate =  adminService.updateName(BaseContext.getCurrentId(),updateNameDto.getNewName(),updateNameDto.getOldName());
         SelectDto selectDto = modelMapper.map(adminuopdate,SelectDto.class);
         return Result.success("修改名字成功",selectDto);

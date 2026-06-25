@@ -29,7 +29,7 @@ public class RedisUtil {
      */
     public String get(String key) {
         if (!StringUtils.hasText(key)) {
-            log.warn("缓存key为空");
+//            log.warn("缓存key为空");
             return null;
         }
 
@@ -38,15 +38,15 @@ public class RedisUtil {
             String value = operations.get(key);
 
             if (value == null) {
-                log.debug("缓存不存在，key: {}", key);
+//                log.debug("缓存不存在，key: {}", key);
                 return null;
             }
 
-            log.debug("缓存存在，key: {}, value: {}", key, value);
+//            log.debug("缓存存在，key: {}, value: {}", key, value);
             return value;
 
         } catch (Exception e) {
-            log.error("获取缓存失败，key: {}", key, e);
+//            log.error("获取缓存失败，key: {}", key, e);
             return null;
         }
     }
@@ -69,22 +69,22 @@ public class RedisUtil {
      */
     public void set(String key, String value, long timeout, TimeUnit unit) {
         if (!StringUtils.hasText(key)) {
-            log.warn("缓存key为空");
+//            log.warn("缓存key为空");
             return;
         }
 
         if (value == null) {
-            log.warn("缓存value为空，key: {}", key);
+//            log.warn("缓存value为空，key: {}", key);
             return;
         }
 
         try {
             ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
             operations.set(key, value, timeout, unit);
-            log.info("缓存设置成功，key: {}, 过期时间: {}{}", key, timeout, unit);
+//            log.info("缓存设置成功，key: {}, 过期时间: {}{}", key, timeout, unit);
 
         } catch (Exception e) {
-            log.error("设置缓存失败，key: {}", key, e);
+//            log.error("设置缓存失败，key: {}", key, e);
         }
     }
 
@@ -94,20 +94,20 @@ public class RedisUtil {
      */
     public void delete(String key) {
         if (!StringUtils.hasText(key)) {
-            log.warn("缓存key为空");
+//            log.warn("缓存key为空");
             return;
         }
 
         try {
             Boolean result = stringRedisTemplate.delete(key);
             if (Boolean.TRUE.equals(result)) {
-                log.info("缓存删除成功，key: {}", key);
+//                log.info("缓存删除成功，key: {}", key);
             } else {
-                log.debug("缓存不存在，无需删除，key: {}", key);
+//                log.debug("缓存不存在，无需删除，key: {}", key);
             }
 
         } catch (Exception e) {
-            log.error("删除缓存失败，key: {}", key, e);
+//            log.error("删除缓存失败，key: {}", key, e);
         }
     }
 
@@ -126,7 +126,7 @@ public class RedisUtil {
             return Boolean.TRUE.equals(result);
 
         } catch (Exception e) {
-            log.error("判断缓存是否存在失败，key: {}", key, e);
+//            log.error("判断缓存是否存在失败，key: {}", key, e);
             return false;
         }
     }
@@ -145,11 +145,11 @@ public class RedisUtil {
 
         try {
             Boolean result = stringRedisTemplate.expire(key, timeout, unit);
-            log.debug("设置过期时间成功，key: {}, 过期时间: {}{}", key, timeout, unit);
+//            log.debug("设置过期时间成功，key: {}, 过期时间: {}{}", key, timeout, unit);
             return Boolean.TRUE.equals(result);
 
         } catch (Exception e) {
-            log.error("设置过期时间失败，key: {}", key, e);
+//            log.error("设置过期时间失败，key: {}", key, e);
             return false;
         }
     }

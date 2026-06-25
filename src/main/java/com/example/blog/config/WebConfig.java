@@ -15,7 +15,6 @@ public class WebConfig implements WebMvcConfigurer {
     private JwtInterceptor jwtInterceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        log.info("注册JWT拦截器");
         registry.addInterceptor(jwtInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(

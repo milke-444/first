@@ -56,20 +56,20 @@ public class ServiceAop {
             params = JSON.toJSONString(args);
         } catch (Exception e) {
             params = "[序列化参数失败: " + e.getMessage() + "]";
-            log.warn("AOP参数序列化失败, className={}, methodName={}", className, methodName, e);
+//            log.warn("AOP参数序列化失败, className={}, methodName={}", className, methodName, e);
         }
         aop.setParams(params);
         //初始化执行方法
         Object result = null;
         try {
             result = joinPoint.proceed();
-            log.info("Service执行成功" + "执行类" + className + "执行方法" + methodName);
+//            log.info("Service执行成功" + "执行类" + className + "执行方法" + methodName);
             aop.setResult("成功");
             return result;
 
 
         } catch (Exception e) {
-            log.error("Service执行失败" + "执行类" + className + "执行方法" + methodName);
+//            log.error("Service执行失败" + "执行类" + className + "执行方法" + methodName);
             aop.setResult("失败");
             aop.setException(e.getMessage());
             throw e;
@@ -77,7 +77,7 @@ public class ServiceAop {
         } finally {
             Long end = System.currentTimeMillis();
             aop.setCostTime(end - start);
-            log.info("Service执行结束" + "总耗时" + (end - start) + "毫秒");
+//            log.info("Service执行结束" + "总耗时" + (end - start) + "毫秒");
             aopStorage.save(aop);
 
         }

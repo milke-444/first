@@ -18,4 +18,16 @@ public class UserException extends RuntimeException{
         this.code = code;
 
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public Integer getCode() {
+        return code;
+    }
 }

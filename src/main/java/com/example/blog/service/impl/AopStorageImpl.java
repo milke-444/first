@@ -22,7 +22,7 @@ public class AopStorageImpl implements AopStorage {
         aop.setUserName(aopLogMapper.nameselect(aop.getUserId()));
         String params = aop.getParams();
 
-        log.info("保存日志的线程: {}", Thread.currentThread().getName());
+//        log.info("保存日志的线程: {}", Thread.currentThread().getName());
         if (aop.getParams() != null)
         {
             String maskedParams = params.replaceAll(

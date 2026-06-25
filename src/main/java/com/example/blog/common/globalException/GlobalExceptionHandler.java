@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class})//捕获@valid注解验证参数验证异常
     public Result handleException(MethodArgumentNotValidException e){
         BindingResult bindingResult = e.getBindingResult();//获取BindingResult对象，它可以获得异常中的参数验证错误信息
-        log.info("参数验证异常:{}",bindingResult.getAllErrors());//记录日志
+//        log.info("参数验证异常:{}",bindingResult.getAllErrors());//记录日志
         //判断BindingResult对象是否包含错误信息
         if (bindingResult.hasErrors()){
             List<ObjectError> errors = bindingResult.getAllErrors();//获取错误信息，封装为List对象

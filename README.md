@@ -89,9 +89,9 @@ http://localhost:8080/doc.html
 - [B+Tree 索引原理与最左前缀原则](docs/docs/B+Tree.md)
 - [Redis 底层数据结构：SDS、ziplist、skiplist](docs/docs/redis-string.md)
 - [Lua 脚本简单理解](docs/docs/lua脚本.md)
-- [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)(未完善)
-- [MySQL JSON 字段使用实践](docs/mysql-json-field.md)(未完善)
-- [langchain4j的基本学习和一些心得](docs/langchain4j学习心得.md)(学到新东西后续会加深)
+- [Spring Boot 自动装配原理](docs/docs/spring-boot-auto-configuration.md)(未完善)
+- [MySQL JSON 字段使用实践](docs/docs/mysql-json-field.md)(未完善)
+- [langchain4j的基本学习和一些心得](docs/docs/langchain4j学习心得.md)(学到新东西后续会加深)
 
 ## 项目优化历程
 

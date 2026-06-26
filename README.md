@@ -91,6 +91,7 @@ http://localhost:8080/doc.html
 - [Lua 脚本简单理解](docs/docs/lua脚本.md)
 - [Spring Boot 自动装配原理](docs/spring-boot-auto-configuration.md)(未完善)
 - [MySQL JSON 字段使用实践](docs/mysql-json-field.md)(未完善)
+- [langchain4j的基本学习和一些心得](docs/langchain4j学习心得.md)(学到新东西后续会加深)
 
 ## 项目优化历程
 

@@ -92,6 +92,7 @@ http://localhost:8080/doc.html
 - [Spring Boot 自动装配原理](docs/docs/spring-boot-auto-configuration.md)(未完善)
 - [MySQL JSON 字段使用实践](docs/docs/mysql-json-field.md)(未完善)
 - [langchain4j的基本学习和一些心得](docs/docs/langchain4j学习心得.md)(学到新东西后续会加深)
+- [redis持久化的理论学习](docs/docs/reids持久化学习.md)
 
 ## 项目优化历程
 
@@ -102,7 +103,7 @@ http://localhost:8080/doc.html
 | 阶段三 | 简历生成和pdf导出 | ✅ 初步完成,优化简历样式,嵌入ai辅助完善 |
 | 阶段四 | AI 功能集成（智能助手） |✅基于langchain4j和质谱大模型实现，后续完善一些技术的使用 |
 | 阶段五 | 个人工作台知识笔记功能 | 🚧 进行中 |
-| 阶段六 | redis持久化 | 🚧 进行中 |
+| 阶段六 | redis持久化 | ✅初步完成 |
 | 阶段七 | Docker 容器化部署 | 📅 计划中 |
 | 阶段八 | 单元测试与压力测试 | 📅 计划中 | 
 | 阶段九 | 对数据库表进行整体优化 | 🚧 进行中 |
